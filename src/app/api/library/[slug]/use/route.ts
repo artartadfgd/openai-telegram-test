@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getLibraryTemplate } from "@/lib/library-templates";
+import { getLibraryTemplate } from "@/lib/library-content";
+import { LOCALES, type Locale } from "@/lib/i18n/dictionary";
 
-export async function POST(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const userId = await getSessionUserId();
   if (!userId) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
 
   const { slug } = await params;
-  const template = getLibraryTemplate(slug);
+  const body = await req.json().catch(() => ({}));
+  const locale: Locale = LOCALES.includes(body.locale) ? body.locale : "pt";
+  const template = getLibraryTemplate(locale, slug);
   if (!template) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const doc = {

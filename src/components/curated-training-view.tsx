@@ -1,13 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, Printer, Sparkles } from "lucide-react";
 import { VolleyballCourt } from "@/components/volleyball-court";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
-import type { CuratedTemplate } from "@/lib/volleyball";
+import { getLibraryTemplate } from "@/lib/library-content";
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -18,13 +19,15 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function CuratedTrainingView({ template }: { template: CuratedTemplate }) {
-  const { t } = useTranslation();
+export function CuratedTrainingView({ slug }: { slug: string }) {
+  const { t, locale } = useTranslation();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const blocks = useMemo(() => template.blocks.slice().sort((a, b) => a.order - b.order), [template.blocks]);
+  const template = useMemo(() => getLibraryTemplate(locale, slug), [locale, slug]);
+
+  const blocks = useMemo(() => (template ? template.blocks.slice().sort((a, b) => a.order - b.order) : []), [template]);
   const ranges = useMemo(() => {
     let acc = 0;
     return blocks.map((b) => {
@@ -35,9 +38,14 @@ export function CuratedTrainingView({ template }: { template: CuratedTemplate })
   }, [blocks]);
 
   async function useTemplate() {
+    if (!template) return;
     setLoading(true);
     setError(null);
-    const res = await fetch(`/api/library/${template.slug}/use`, { method: "POST" });
+    const res = await fetch(`/api/library/${template.slug}/use`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locale }),
+    });
     const data = await res.json();
     setLoading(false);
     if (!res.ok) {
@@ -45,6 +53,17 @@ export function CuratedTrainingView({ template }: { template: CuratedTemplate })
       return;
     }
     router.push(`/ai-coach?c=${data.conversationId}`);
+  }
+
+  if (!template) {
+    return (
+      <div className="mx-auto max-w-md py-16 text-center">
+        <p className="text-sm text-muted-foreground">{t.library.notFound}</p>
+        <Link href="/library" className="mt-3 inline-block text-sm font-medium text-primary hover:underline">
+          {t.library.backToLibrary}
+        </Link>
+      </div>
+    );
   }
 
   return (

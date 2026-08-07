@@ -9,7 +9,7 @@ import { VolleyballCourt } from "@/components/volleyball-court";
 import { CuratedCard } from "@/components/curated-card";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/lib/i18n/context";
-import { LIBRARY_TEMPLATES } from "@/lib/library-templates";
+import { getLibraryTemplates } from "@/lib/library-content";
 import type { TrainingDoc } from "@/lib/ai";
 
 type LibrarySession = {
@@ -24,9 +24,11 @@ type LibrarySession = {
 };
 
 export function LibraryView({ sessions }: { sessions: LibrarySession[] }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
+
+  const templates = useMemo(() => getLibraryTemplates(locale), [locale]);
 
   const categories = useMemo(() => Array.from(new Set(sessions.map((s) => s.category).filter(Boolean))), [sessions]);
 
@@ -46,7 +48,7 @@ export function LibraryView({ sessions }: { sessions: LibrarySession[] }) {
       <section className="mb-10">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t.library.readyMade}</h2>
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {LIBRARY_TEMPLATES.map((template) => (
+          {templates.map((template) => (
             <li key={template.slug}>
               <CuratedCard template={template} badge={t.library.readyMadeBadge} />
             </li>
