@@ -8,7 +8,7 @@ const schema = z.object({
   objective: z.string().min(1),
   players: z.number().int().min(1).max(60),
   duration: z.number().int().min(10).max(240),
-  field: z.enum(["reduced", "half", "full"]),
+  courtSetup: z.enum(["reduced", "attack", "half", "full"]),
   weekMoment: z.string(),
   materials: z.string().optional().default(""),
   notes: z.string().optional().default(""),
@@ -16,7 +16,7 @@ const schema = z.object({
 });
 
 const CATEGORY_LABEL: Record<string, string> = { u6: "Sub-6", u11: "Sub-11", u14: "Sub-14", u16: "Sub-16", pro: "Profissional" };
-const FIELD_LABEL: Record<string, string> = { reduced: "espaço reduzido", half: "meio campo", full: "campo inteiro" };
+const COURT_LABEL: Record<string, string> = { reduced: "quadra reduzida", attack: "zona de ataque", half: "meia quadra", full: "quadra completa" };
 const MOMENT_LABEL: Record<string, string> = {
   preSeason: "pré-temporada",
   midWeek: "meio de semana",
@@ -29,13 +29,13 @@ function buildPrompt(data: z.infer<typeof schema>) {
     `Categoria: ${CATEGORY_LABEL[data.category] ?? data.category}`,
     `Número de jogadores: ${data.players}`,
     `Duração total: ${data.duration} min`,
-    `Campo: ${FIELD_LABEL[data.field] ?? data.field}`,
+    `Quadra: ${COURT_LABEL[data.courtSetup] ?? data.courtSetup}`,
     `Momento da semana: ${MOMENT_LABEL[data.weekMoment] ?? data.weekMoment}`,
     `Objetivo principal: ${data.objective}`,
   ];
   if (data.materials.trim()) lines.push(`Materiais disponíveis: ${data.materials.trim()}`);
   if (data.notes.trim()) lines.push(`Observações: ${data.notes.trim()}`);
-  return `Monte um treino de futebol com os seguintes parâmetros:\n${lines.join("\n")}`;
+  return `Monte um treino de voleibol com os seguintes parâmetros:\n${lines.join("\n")}`;
 }
 
 export async function POST(req: NextRequest) {

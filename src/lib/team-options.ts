@@ -4,11 +4,11 @@ export const CATEGORIES = [
 ];
 
 export const PLAY_STYLES = [
-  { value: "posse", label: "Posse de bola" },
-  { value: "transicao_rapida", label: "Transição rápida" },
-  { value: "bloco_baixo", label: "Bloco baixo" },
-  { value: "pressao_alta", label: "Pressão alta" },
-  { value: "jogo_direto", label: "Jogo direto" },
+  { value: "5x1", label: "Sistema 5x1 (um levantador)" },
+  { value: "6x2", label: "Sistema 6x2 (dois levantadores)" },
+  { value: "saque_agressivo", label: "Saque agressivo" },
+  { value: "bloqueio_solido", label: "Bloqueio sólido" },
+  { value: "contra_ataque", label: "Contra-ataque rápido" },
   { value: "equilibrado", label: "Equilibrado" },
 ];
 

@@ -13,7 +13,7 @@ const CATEGORIES = [
   { value: "pro", label: "Profissional" },
 ];
 
-const OBJECTIVES = ["Posse de bola", "Finalização", "Transição rápida", "Marcação em bloco baixo", "Construção de jogo"];
+const OBJECTIVES = ["Recepção de saque", "Ataque de posição 4", "Bloqueio duplo", "Levantamento e distribuição", "Defesa de quadra"];
 
 function Select({
   label,
@@ -52,7 +52,7 @@ export function QuickCreateForm() {
   const [category, setCategory] = useState("u14");
   const [objective, setObjective] = useState(OBJECTIVES[0]);
   const [duration, setDuration] = useState("75");
-  const [players, setPlayers] = useState("16");
+  const [players, setPlayers] = useState("12");
 
   function submit() {
     const params = new URLSearchParams({ category, objective, duration, players });
@@ -76,7 +76,7 @@ export function QuickCreateForm() {
         <Select label="Objetivo" value={objective} onChange={setObjective} options={OBJECTIVES.map((o) => ({ value: o, label: o }))} />
         <div className="grid grid-cols-2 gap-3">
           <Select label="Duração" value={duration} onChange={setDuration} options={[45, 60, 75, 90, 105, 120].map((n) => ({ value: String(n), label: `${n} min` }))} />
-          <Select label="Jogadores" value={players} onChange={setPlayers} options={[8, 10, 12, 14, 16, 18, 20, 22, 24].map((n) => ({ value: String(n), label: String(n) }))} />
+          <Select label="Jogadores" value={players} onChange={setPlayers} options={[6, 8, 9, 10, 12, 14, 16].map((n) => ({ value: String(n), label: String(n) }))} />
         </div>
       </div>
 

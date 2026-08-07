@@ -107,7 +107,7 @@ export default function TeamsPage() {
     <div className="mx-auto max-w-6xl">
       <PageHeader
         title="Times"
-        description="Organize seus times, estilos de jogo e prioridades da temporada."
+        description="Organize seus times, sistemas de jogo e prioridades da temporada."
         actions={
           teams && teams.length > 0 ? (
             <Button size="sm" className="gap-2" onClick={openCreate}>
@@ -200,7 +200,7 @@ export default function TeamsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogHeader>
           <DialogTitle>{editing ? "Editar time" : "Novo time"}</DialogTitle>
-          <DialogDescription>Defina a identidade e o estilo de jogo do time.</DialogDescription>
+          <DialogDescription>Defina a identidade e o sistema de jogo do time.</DialogDescription>
         </DialogHeader>
 
         <div className="mt-4 max-h-[65vh] space-y-4 overflow-y-auto pr-1">
@@ -267,7 +267,7 @@ export default function TeamsPage() {
           </div>
 
           <div>
-            <Label>Estilo de jogo</Label>
+            <Label>Sistema de jogo</Label>
             <div className="mt-2 grid grid-cols-2 gap-2">
               {PLAY_STYLES.map((s) => (
                 <button

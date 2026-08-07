@@ -18,11 +18,12 @@ const CATEGORIES = [
   { value: "u16", label: "Sub-16" },
   { value: "pro", label: "Profissional" },
 ];
-const OBJECTIVE_SUGGESTIONS = ["Posse de bola", "Finalização", "Transição rápida", "Marcação em bloco baixo", "Construção de jogo", "Jogo aéreo"];
-const FIELDS = [
-  { value: "reduced", label: "Espaço reduzido" },
-  { value: "half", label: "Meio campo" },
-  { value: "full", label: "Campo inteiro" },
+const OBJECTIVE_SUGGESTIONS = ["Recepção de saque", "Ataque de posição 4", "Bloqueio duplo", "Levantamento e distribuição", "Defesa de quadra", "Saque flutuante"];
+const COURT_SETUPS = [
+  { value: "reduced", label: "Quadra reduzida" },
+  { value: "attack", label: "Zona de ataque" },
+  { value: "half", label: "Meia quadra" },
+  { value: "full", label: "Quadra completa" },
 ];
 const MOMENTS = [
   { value: "preSeason", label: "Pré-temporada" },
@@ -57,9 +58,9 @@ function TrainingBuilderInner() {
   const [form, setForm] = useState({
     category: searchParams.get("category") ?? "u11",
     objective: searchParams.get("objective") ?? "",
-    players: Number(searchParams.get("players")) || 14,
+    players: Number(searchParams.get("players")) || 12,
     duration: Number(searchParams.get("duration")) || 70,
-    field: "reduced" as "reduced" | "half" | "full",
+    courtSetup: "reduced" as "reduced" | "attack" | "half" | "full",
     weekMoment: "midWeek",
     materials: "",
     notes: "",
@@ -201,16 +202,16 @@ function TrainingBuilderInner() {
               </Field>
             </div>
             <div>
-              <Label className="text-sm">Campo</Label>
-              <div className="mt-2 grid gap-2 md:grid-cols-3">
-                {FIELDS.map((f) => (
+              <Label className="text-sm">Quadra</Label>
+              <div className="mt-2 grid gap-2 md:grid-cols-4">
+                {COURT_SETUPS.map((f) => (
                   <button
                     key={f.value}
                     type="button"
-                    onClick={() => setForm((s) => ({ ...s, field: f.value as typeof s.field }))}
+                    onClick={() => setForm((s) => ({ ...s, courtSetup: f.value as typeof s.courtSetup }))}
                     className={cn(
                       "rounded-lg border p-2.5 text-center text-sm transition-colors",
-                      form.field === f.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/40 hover:bg-accent"
+                      form.courtSetup === f.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/40 hover:bg-accent"
                     )}
                   >
                     {f.label}
@@ -263,7 +264,7 @@ function TrainingBuilderInner() {
               <ReviewRow label="Objetivo" value={form.objective || "—"} />
               <ReviewRow label="Jogadores" value={String(form.players)} />
               <ReviewRow label="Duração" value={`${form.duration} min`} />
-              <ReviewRow label="Campo" value={FIELDS.find((f) => f.value === form.field)?.label ?? form.field} />
+              <ReviewRow label="Quadra" value={COURT_SETUPS.find((f) => f.value === form.courtSetup)?.label ?? form.courtSetup} />
               <ReviewRow label="Momento" value={MOMENTS.find((m) => m.value === form.weekMoment)?.label ?? form.weekMoment} />
               {form.materials && <ReviewRow label="Materiais" value={form.materials} />}
               {form.notes && <ReviewRow label="Observações" value={form.notes} />}

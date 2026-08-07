@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CoachAI Football",
-  description: "Plataforma de IA para treinadores de futebol planejarem treinos, times e temporadas.",
+  title: "CoachAI Vôlei",
+  description: "Plataforma de IA para treinadores de voleibol planejarem treinos, times e temporadas.",
 };
 
 const themeScript = `

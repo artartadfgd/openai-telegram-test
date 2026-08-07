@@ -1,4 +1,7 @@
 import OpenAI from "openai";
+import type { VolleyballDoc } from "@/lib/volleyball";
+
+export type { VolleyballDoc as TrainingDoc } from "@/lib/volleyball";
 
 let client: OpenAI | null = null;
 function getClient() {
@@ -10,70 +13,30 @@ function getClient() {
   return client;
 }
 
-export type PitchPlayer = { x: number; y: number; team: "A" | "B" | "N"; number: number; gk: boolean };
-export type PitchArrow = { from: { x: number; y: number }; to: { x: number; y: number }; type: "pass" | "run" | "dribble"; order: number };
-export type PitchPoint = { x: number; y: number };
-
-export type TrainingDiagram = {
-  pitchType: "full" | "half" | "reduced" | "square";
-  players: PitchPlayer[];
-  arrows: PitchArrow[];
-  cones: PitchPoint[];
-  balls: PitchPoint[];
-};
-
-export type TrainingBlock = {
-  order: number;
-  title: string;
-  durationMin: number;
-  description: string;
-  coachingPoints: string[];
-  technicalActions: { offensive: string[]; defensive: string[] };
-  tacticalPrinciple: string;
-  diagram: TrainingDiagram;
-};
-
-export type TrainingDoc = {
-  title: string;
-  objective: string;
-  category: string;
-  field: string;
-  totalDurationMin: number;
-  playersCount: number;
-  intensity: number;
-  materials: string[];
-  blocks: TrainingBlock[];
-  progressions: string[];
-  regressions: string[];
-  socioAffective: string;
-  notes: string;
-};
-
 const diagramSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["pitchType", "players", "arrows", "cones", "balls"],
+  required: ["players", "arrows", "cones", "balls"],
   properties: {
-    pitchType: { type: "string", enum: ["full", "half", "reduced", "square"] },
     players: {
       type: "array",
-      maxItems: 24,
+      maxItems: 12,
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["x", "y", "team", "number", "gk"],
+        required: ["x", "y", "team", "number", "libero"],
         properties: {
-          x: { type: "number", description: "0-100, percentage across pitch width" },
-          y: { type: "number", description: "0-100, percentage down pitch height" },
+          x: { type: "number", description: "0-100, percentage across court width (sideline to sideline)" },
+          y: { type: "number", description: "0-100, percentage along court length; 50 is the net, 0-50 is side B, 50-100 is side A" },
           team: { type: "string", enum: ["A", "B", "N"] },
           number: { type: "integer" },
-          gk: { type: "boolean" },
+          libero: { type: "boolean" },
         },
       },
     },
     arrows: {
       type: "array",
-      maxItems: 12,
+      maxItems: 10,
       items: {
         type: "object",
         additionalProperties: false,
@@ -91,14 +54,14 @@ const diagramSchema = {
             required: ["x", "y"],
             properties: { x: { type: "number" }, y: { type: "number" } },
           },
-          type: { type: "string", enum: ["pass", "run", "dribble"] },
+          type: { type: "string", enum: ["serve", "set", "spike", "block", "dig", "move"] },
           order: { type: "integer" },
         },
       },
     },
     cones: {
       type: "array",
-      maxItems: 12,
+      maxItems: 8,
       items: {
         type: "object",
         additionalProperties: false,
@@ -108,7 +71,7 @@ const diagramSchema = {
     },
     balls: {
       type: "array",
-      maxItems: 6,
+      maxItems: 4,
       items: {
         type: "object",
         additionalProperties: false,
@@ -150,7 +113,7 @@ const trainingDocSchema = {
     "title",
     "objective",
     "category",
-    "field",
+    "courtSetup",
     "totalDurationMin",
     "playersCount",
     "intensity",
@@ -165,7 +128,7 @@ const trainingDocSchema = {
     title: { type: "string" },
     objective: { type: "string" },
     category: { type: "string" },
-    field: { type: "string" },
+    courtSetup: { type: "string", description: "e.g. quadra completa, meia quadra, zona de ataque, quadra reduzida" },
     totalDurationMin: { type: "integer" },
     playersCount: { type: "integer" },
     intensity: { type: "integer", minimum: 1, maximum: 3 },
@@ -178,18 +141,19 @@ const trainingDocSchema = {
   },
 };
 
-const SYSTEM_PROMPT = `Você é o CoachAI, um assistente especializado em planejamento de treinos de futebol/futsal para treinadores.
+const SYSTEM_PROMPT = `Você é o CoachAI, um assistente especializado em planejamento de treinos de voleibol para treinadores.
 Ao receber um pedido de treino, responda SEMPRE com um documento de treino estruturado e completo em português do Brasil.
-Regras importantes para os diagramas táticos:
-- Coordenadas x,y são porcentagens de 0 a 100 dentro do campo (x = largura, y = altura).
-- Use "team":"A" para o time que executa o exercício, "B" para adversários/oposição, "N" para neutros.
-- Sempre inclua pelo menos os jogadores relevantes ao exercício do bloco (não deixe arrays vazios sem necessidade).
-- pitchType: "reduced" para exercícios em espaço reduzido, "half" para meio campo, "full" para campo inteiro, "square" para rondos/posse em grade.
+Regras importantes para os diagramas de quadra:
+- Coordenadas x,y são porcentagens de 0 a 100 dentro da quadra (x = largura, lateral a lateral; y = comprimento, onde y=50 é a rede, y=0-50 é o lado B e y=50-100 é o lado A).
+- Use "team":"A" para o time/grupo que executa o exercício, "B" para o lado adversário/oposto da rede, "N" para neutros (ex: levantador de apoio, alvo).
+- Sempre posicione jogadores de forma realista respeitando as posições de rotação do voleibol (1 a 6) quando fizer sentido.
+- O tipo de quadra (courtSetup) pode ser: "quadra completa", "meia quadra", "zona de ataque" ou "quadra reduzida" — escolha o que fizer mais sentido pro exercício.
+- Tipos de seta: "serve" (saque), "set" (levantamento), "spike" (ataque/cortada), "block" (bloqueio), "dig" (defesa/manchete), "move" (deslocamento).
 - Cada bloco deve ter uma duração coerente que some (aproximadamente) o total do treino.
-- coachingPoints, technicalActions e tacticalPrinciple devem ser específicos e acionáveis, nunca genéricos.
-Seja didático, prático e direto, como um treinador experiente escrevendo para outro treinador.`;
+- coachingPoints, technicalActions e tacticalPrinciple devem ser específicos e acionáveis, nunca genéricos, sempre no contexto de voleibol (recepção, levantamento, ataque, bloqueio, saque, defesa, rodízio, sistema tático).
+Seja didático, prático e direto, como um treinador experiente de voleibol escrevendo para outro treinador.`;
 
-export async function generateTrainingDoc(userPrompt: string): Promise<TrainingDoc> {
+export async function generateTrainingDoc(userPrompt: string): Promise<VolleyballDoc> {
   const openai = getClient();
   let completion;
   try {
@@ -214,7 +178,7 @@ export async function generateTrainingDoc(userPrompt: string): Promise<TrainingD
   const content = completion.choices[0]?.message?.content;
   if (!content) throw new Error("ai_error");
   try {
-    return JSON.parse(content) as TrainingDoc;
+    return JSON.parse(content) as VolleyballDoc;
   } catch {
     throw new Error("ai_error");
   }
@@ -229,7 +193,7 @@ export async function chatReply(history: { role: "user" | "assistant"; content: 
         {
           role: "system",
           content:
-            "Você é o CoachAI, assistente de treinadores de futebol. Converse de forma curta, prática e amigável em português do Brasil. Se o usuário pedir um treino/sessão de treino específica, responda apenas confirmando que vai montar o plano (o sistema cuidará de gerar o documento estruturado separadamente).",
+            "Você é o CoachAI, assistente de treinadores de voleibol. Converse de forma curta, prática e amigável em português do Brasil. Se o usuário pedir um treino/sessão de treino específica, responda apenas confirmando que vai montar o plano (o sistema cuidará de gerar o documento estruturado separadamente).",
         },
         ...history,
       ],

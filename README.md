@@ -1,15 +1,16 @@
-# CoachAI Football
+# CoachAI Vôlei
 
-Plataforma de IA para treinadores de futebol planejarem treinos, times e temporadas — inspirada em [app.coachai.cfd](https://app.coachai.cfd).
+Plataforma de IA para treinadores de voleibol planejarem treinos, times e temporadas.
 
 Aplicação Next.js completa (App Router + TypeScript + Tailwind CSS v4 + Prisma/Postgres) com:
 
 - **Autenticação** própria (cadastro/login com sessão em cookie).
 - **Painel** com métricas do mês (treinos criados, objetivos, jogadores acompanhados, horas economizadas).
-- **Times e jogadores** com gerador de escudo em SVG, estilo de jogo e prioridades da temporada.
-- **Criador de treino** (wizard de 5 passos) e **Assistente de IA** (chat) que geram um plano de treino completo via OpenAI, com diagramas táticos de campo em SVG.
+- **Times e jogadores** com gerador de escudo em SVG, sistema de jogo e prioridades da temporada.
+- **Criador de treino** (wizard de 5 passos) e **Assistente de IA** (chat) que geram um plano de treino completo via OpenAI, com diagramas de quadra animados em SVG.
+- **Biblioteca**, **Favoritos**, **Calendário** e **Temporada** para organizar e agendar os treinos.
 - **Histórico** de todos os treinos gerados.
-- Tema claro/escuro.
+- Seletor de idioma (Português, Inglês, Espanhol, Francês, Italiano, Alemão) e tema claro/escuro.
 
 ## Rodando localmente
 

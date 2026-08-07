@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
-import { TacticalPitch } from "@/components/tactical-pitch";
+import { VolleyballCourt } from "@/components/volleyball-court";
 import type { TrainingDoc } from "@/lib/ai";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
@@ -31,7 +31,7 @@ export default async function HistoryPage() {
             const inner = (
               <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:shadow-md">
                 <div className="border-b border-border">
-                  <TacticalPitch diagram={firstBlock ? firstBlock.diagram : { pitchType: "reduced", players: [], arrows: [], cones: [], balls: [] }} animated={false} />
+                  <VolleyballCourt diagram={firstBlock ? firstBlock.diagram : { players: [], arrows: [], cones: [], balls: [] }} animated={false} />
                 </div>
                 <div className="flex flex-1 flex-col gap-2 p-4">
                   <h3 className="line-clamp-2 text-sm font-semibold">{s.title}</h3>

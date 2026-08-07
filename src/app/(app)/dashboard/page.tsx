@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, Clock, Plus, Sparkles, Target, Trophy, Users, Zap, Swords, Flag, Gauge, ShieldCheck, Dumbbell, Timer } from "lucide-react";
+import { Bell, Clock, Plus, Sparkles, Target, Trophy, Users, Zap, Swords, ShieldCheck, Hand, Radar, RotateCw } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { getDashboardStats } from "@/lib/metrics";
 import { Button } from "@/components/ui/button";
@@ -7,13 +7,13 @@ import { MetricCard } from "@/components/metric-card";
 import { QuickCreateForm } from "@/components/quick-create-form";
 
 const POPULAR = [
-  { key: "speed", label: "Velocidade", icon: Zap },
-  { key: "possession", label: "Posse de bola", icon: Swords },
-  { key: "finishing", label: "Finalização", icon: Flag },
-  { key: "transition", label: "Transição", icon: Gauge },
-  { key: "defense", label: "Defesa", icon: ShieldCheck },
-  { key: "strength", label: "Força", icon: Dumbbell },
-  { key: "agility", label: "Agilidade", icon: Timer },
+  { key: "serve", label: "Saque", icon: Zap },
+  { key: "attack", label: "Ataque", icon: Swords },
+  { key: "block", label: "Bloqueio", icon: ShieldCheck },
+  { key: "set", label: "Levantamento", icon: Target },
+  { key: "dig", label: "Defesa", icon: Hand },
+  { key: "reception", label: "Recepção", icon: Radar },
+  { key: "rotation", label: "Rodízio tático", icon: RotateCw },
   { key: "smallSided", label: "Jogos reduzidos", icon: Users },
 ];
 
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
             <h2 className="text-base font-semibold tracking-tight">Assistente de IA</h2>
           </div>
           <p className="text-sm text-muted-foreground">
-            Converse com o CoachAI para tirar dúvidas táticas, pedir ajustes num treino existente ou gerar um plano do zero, com diagramas de campo prontos.
+            Converse com o CoachAI para tirar dúvidas táticas, pedir ajustes num treino existente ou gerar um plano do zero, com diagramas de quadra prontos.
           </p>
           <Button asChild className="mt-4 gap-2">
             <Link href="/ai-coach">

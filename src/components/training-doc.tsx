@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Heart, Printer } from "lucide-react";
-import { TacticalPitch } from "@/components/tactical-pitch";
+import { VolleyballCourt } from "@/components/volleyball-court";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -68,7 +68,7 @@ export function TrainingDocView({ doc }: { doc: DocWithMeta }) {
           <Stat label="Categoria" value={doc.category} />
           <Stat label="Duração" value={`${doc.totalDurationMin} min`} />
           <Stat label="Jogadores" value={String(doc.playersCount)} />
-          <Stat label="Campo" value={doc.field} />
+          <Stat label="Quadra" value={doc.courtSetup} />
           <Stat label="Intensidade" value={"●".repeat(doc.intensity) + "○".repeat(3 - doc.intensity)} />
         </div>
 
@@ -97,7 +97,7 @@ export function TrainingDocView({ doc }: { doc: DocWithMeta }) {
               className="group flex w-32 shrink-0 flex-col gap-1 rounded-lg border border-border bg-background p-1.5 transition-colors hover:border-primary/50"
             >
               <div className="overflow-hidden rounded-md">
-                <TacticalPitch diagram={b.diagram} animated={false} />
+                <VolleyballCourt diagram={b.diagram} animated={false} />
               </div>
               <div className="px-1 pb-0.5">
                 <div className="truncate text-[11px] font-medium">
@@ -137,7 +137,7 @@ export function TrainingDocView({ doc }: { doc: DocWithMeta }) {
                 </span>
               </div>
               <div className="mt-3 max-w-xl">
-                <TacticalPitch diagram={b.diagram} />
+                <VolleyballCourt diagram={b.diagram} />
               </div>
               <p className="mt-2 text-sm text-foreground/80">{b.description}</p>
               {b.coachingPoints.length > 0 && (

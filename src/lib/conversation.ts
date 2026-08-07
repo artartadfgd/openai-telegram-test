@@ -41,7 +41,7 @@ export async function sendCoachMessage({
           category: trainingDoc.category,
           totalDurationMin: trainingDoc.totalDurationMin,
           playersCount: trainingDoc.playersCount,
-          field: trainingDoc.field,
+          field: trainingDoc.courtSetup,
           intensity: trainingDoc.intensity,
           doc: JSON.stringify(trainingDoc),
         },

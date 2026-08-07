@@ -46,8 +46,8 @@ function Thinking() {
 }
 
 const SUGGESTIONS = [
-  "Monte um treino de finalização para sub-14, 60 minutos",
-  "Como melhorar a marcação em bloco baixo do meu time?",
+  "Monte um treino de ataque de posição 4 para sub-14, 60 minutos",
+  "Como melhorar o bloqueio duplo do meu time?",
   "Preciso de um aquecimento de 15 minutos para pré-temporada",
 ];
 
