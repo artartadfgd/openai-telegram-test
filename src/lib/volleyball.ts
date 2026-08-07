@@ -40,3 +40,24 @@ export type VolleyballDoc = {
   socioAffective: string;
   notes: string;
 };
+
+export type CuratedBlock = VolleyballBlock & {
+  variants?: { harder?: string; easier?: string };
+};
+
+export type CuratedTemplate = {
+  slug: string;
+  category: string;
+  hook: string;
+  title: string;
+  subtitle: string;
+  objective: string;
+  courtSetup: string;
+  totalDurationMin: number;
+  playersCount: number;
+  intensity: number;
+  materials: string[];
+  coverFrom: string;
+  coverTo: string;
+  blocks: CuratedBlock[];
+};

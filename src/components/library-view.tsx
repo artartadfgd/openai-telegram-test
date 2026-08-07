@@ -6,8 +6,10 @@ import { BookOpen, Clock, Search, Users, WandSparkles } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { VolleyballCourt } from "@/components/volleyball-court";
+import { CuratedCard } from "@/components/curated-card";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/lib/i18n/context";
+import { LIBRARY_TEMPLATES } from "@/lib/library-templates";
 import type { TrainingDoc } from "@/lib/ai";
 
 type LibrarySession = {
@@ -40,6 +42,19 @@ export function LibraryView({ sessions }: { sessions: LibrarySession[] }) {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader title={t.library.title} description={t.library.subtitle} />
+
+      <section className="mb-10">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t.library.readyMade}</h2>
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {LIBRARY_TEMPLATES.map((template) => (
+            <li key={template.slug}>
+              <CuratedCard template={template} badge={t.library.readyMadeBadge} />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t.library.myTrainings}</h2>
 
       {sessions.length === 0 ? (
         <EmptyState icon={BookOpen} title={t.library.empty} />
