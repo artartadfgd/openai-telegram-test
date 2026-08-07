@@ -6,6 +6,7 @@ import { Loader2, MessageSquarePlus, Send, Sparkles, Trash2, User, Users } from 
 import { Button } from "@/components/ui/button";
 import { TrainingDocView } from "@/components/training-doc";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/context";
 import type { TrainingDoc } from "@/lib/ai";
 
 type ConversationSummary = { id: string; title: string | null; teamId: string | null; updatedAt: string };
@@ -31,20 +32,6 @@ function Message({ role, text }: { role: "user" | "assistant"; text: string }) {
   );
 }
 
-function Thinking() {
-  return (
-    <div className="flex gap-3 animate-fade-in">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
-        <Sparkles className="h-4 w-4 animate-pulse" />
-      </div>
-      <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-2.5 text-sm text-muted-foreground">
-        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-        <span className="animate-pulse">Pensando...</span>
-      </div>
-    </div>
-  );
-}
-
 const SUGGESTIONS = [
   "Monte um treino de ataque de posição 4 para sub-14, 60 minutos",
   "Como melhorar o bloqueio duplo do meu time?",
@@ -53,6 +40,7 @@ const SUGGESTIONS = [
 
 function AiCoachInner() {
   const router = useRouter();
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("c");
 
@@ -76,7 +64,7 @@ function AiCoachInner() {
     loadConversations();
     fetch("/api/teams")
       .then((r) => r.json())
-      .then((data) => setTeams(data.map((t: { id: string; name: string }) => ({ id: t.id, name: t.name }))));
+      .then((data) => setTeams(data.map((team: { id: string; name: string }) => ({ id: team.id, name: team.name }))));
   }, []);
 
   useEffect(() => {
@@ -119,9 +107,9 @@ function AiCoachInner() {
 
     if (!res.ok) {
       const messagesMap: Record<string, string> = {
-        rate_limited: "Muitas mensagens agora, tente novamente em instantes.",
-        no_credits: "A chave da OpenAI não está configurada ou sem créditos.",
-        ai_error: "Não consegui responder agora. Tente novamente.",
+        rate_limited: t.errors.rateLimited,
+        no_credits: t.errors.noCredits,
+        ai_error: t.errors.aiError,
       };
       setError(messagesMap[data.error] ?? messagesMap.ai_error);
       return;
@@ -138,28 +126,28 @@ function AiCoachInner() {
   }
 
   async function deleteConversation(id: string) {
-    if (!confirm("Excluir esta conversa?")) return;
+    if (!confirm(t.aiCoach.deleteConfirm)) return;
     await fetch(`/api/ai-coach/conversations/${id}`, { method: "DELETE" });
     if (id === conversationId) router.push("/ai-coach");
     await loadConversations();
   }
 
-  const activeTeam = teams.find((t) => t.id === teamId);
+  const activeTeam = teams.find((team) => team.id === teamId);
 
   return (
     <div className="flex h-[calc(100dvh-8.5rem)] flex-col md:h-[calc(100dvh-3.5rem)] md:flex-row print:h-auto">
       <aside className="hidden w-72 shrink-0 flex-col border-r border-border bg-card/50 md:flex print:hidden">
         <div className="flex items-center justify-between px-4 py-3">
-          <div className="text-sm font-medium">Conversas</div>
+          <div className="text-sm font-medium">{t.aiCoach.conversations}</div>
           <Button size="sm" variant="ghost" className="gap-1.5" onClick={() => router.push("/ai-coach")}>
             <MessageSquarePlus className="h-4 w-4" />
-            Nova
+            {t.aiCoach.newConversation}
           </Button>
         </div>
         <div className="h-px bg-border" />
         <div className="flex-1 overflow-y-auto p-2">
           {conversations.length === 0 ? (
-            <p className="px-3 py-6 text-xs text-muted-foreground">Nenhuma conversa ainda.</p>
+            <p className="px-3 py-6 text-xs text-muted-foreground">{t.aiCoach.empty}</p>
           ) : (
             <ul className="space-y-1">
               {conversations.map((c) => (
@@ -171,10 +159,10 @@ function AiCoachInner() {
                       conversationId === c.id ? "bg-accent text-accent-foreground" : "hover:bg-accent/60"
                     )}
                   >
-                    {c.title || "Nova conversa"}
+                    {c.title || t.aiCoach.newConversation}
                   </button>
                   <button
-                    aria-label="Excluir"
+                    aria-label={t.common.delete}
                     onClick={(e) => {
                       e.stopPropagation();
                       deleteConversation(c.id);
@@ -195,18 +183,18 @@ function AiCoachInner() {
           <div>
             <div className="flex items-center gap-2 text-sm font-medium">
               <Sparkles className="h-4 w-4 text-primary" />
-              CoachAI
+              {t.aiCoach.title}
             </div>
-            <p className="text-xs text-muted-foreground">Seu assistente tático</p>
+            <p className="text-xs text-muted-foreground">{t.aiCoach.subtitle}</p>
           </div>
           {teams.length > 0 && (
             <label className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1 text-xs">
               {activeTeam ? <Users className="h-3.5 w-3.5 text-primary" /> : <Users className="h-3.5 w-3.5 text-muted-foreground" />}
               <select value={teamId ?? ""} onChange={(e) => setTeamId(e.target.value || null)} className="bg-transparent outline-none">
-                <option value="">Nenhum time</option>
-                {teams.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
+                <option value="">{t.aiCoach.noTeam}</option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
                   </option>
                 ))}
               </select>
@@ -225,8 +213,8 @@ function AiCoachInner() {
                 {messages.length === 0 && !sending && (
                   <div className="animate-fade-in rounded-2xl border border-dashed border-border bg-card/50 p-6 text-center">
                     <Sparkles className="mx-auto mb-3 h-6 w-6 text-primary" />
-                    <p className="text-sm text-muted-foreground">Descreva o treino que você precisa ou tire uma dúvida tática.</p>
-                    <p className="mt-6 text-xs font-medium uppercase tracking-wide text-muted-foreground">Sugestões</p>
+                    <p className="text-sm text-muted-foreground">{t.aiCoach.placeholder}</p>
+                    <p className="mt-6 text-xs font-medium uppercase tracking-wide text-muted-foreground">{t.aiCoach.suggestionsLabel}</p>
                     <div className="mt-3 grid gap-2 md:grid-cols-3">
                       {SUGGESTIONS.map((s) => (
                         <button
@@ -245,7 +233,17 @@ function AiCoachInner() {
                   <Message key={m.id} role={m.role} text={m.content} />
                 ))}
                 {training && <TrainingDocView doc={training} />}
-                {sending && <Thinking />}
+                {sending && (
+                  <div className="flex gap-3 animate-fade-in">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                      <Sparkles className="h-4 w-4 animate-pulse" />
+                    </div>
+                    <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-2.5 text-sm text-muted-foreground">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                      <span className="animate-pulse">{t.common.loading}</span>
+                    </div>
+                  </div>
+                )}
                 {error && <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
               </>
             )}
@@ -270,7 +268,7 @@ function AiCoachInner() {
                 }
               }}
               rows={1}
-              placeholder="Escreva sua mensagem..."
+              placeholder={t.aiCoach.placeholder}
               className="min-h-[48px] max-h-40 flex-1 resize-none rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none transition-colors focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
               disabled={sending}
             />

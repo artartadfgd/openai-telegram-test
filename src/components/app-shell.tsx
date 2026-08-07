@@ -11,40 +11,16 @@ import {
   History,
   Settings,
   LogOut,
+  BookOpen,
+  CalendarRange,
+  CalendarClock,
+  Star,
+  CircleUserRound,
 } from "lucide-react";
 import { Brandmark } from "@/components/brandmark";
 import { ThemeToggle } from "@/components/theme-toggle";
-
-const NAV_SECTIONS = [
-  {
-    title: "Trabalho",
-    items: [
-      { to: "/dashboard", label: "Painel", icon: LayoutDashboard },
-      { to: "/ai-coach", label: "Assistente IA", icon: Sparkles },
-      { to: "/training-builder", label: "Criar treino", icon: WandSparkles },
-    ],
-  },
-  {
-    title: "Planejamento",
-    items: [
-      { to: "/teams", label: "Times", icon: Users },
-      { to: "/players", label: "Jogadores", icon: UserRound },
-      { to: "/history", label: "Histórico", icon: History },
-    ],
-  },
-  {
-    title: "Conta",
-    items: [{ to: "/settings", label: "Configurações", icon: Settings }],
-  },
-];
-
-const MOBILE_NAV = [
-  { to: "/dashboard", label: "Painel", icon: LayoutDashboard },
-  { to: "/ai-coach", label: "IA", icon: Sparkles },
-  { to: "/training-builder", label: "Criar", icon: WandSparkles },
-  { to: "/teams", label: "Times", icon: Users },
-  { to: "/settings", label: "Ajustes", icon: Settings },
-];
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useTranslation } from "@/lib/i18n/context";
 
 export function AppShell({
   children,
@@ -55,6 +31,45 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useTranslation();
+
+  const NAV_SECTIONS = [
+    {
+      title: t.nav.work,
+      items: [
+        { to: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
+        { to: "/ai-coach", label: t.nav.aiCoach, icon: Sparkles },
+        { to: "/training-builder", label: t.nav.trainingBuilder, icon: WandSparkles },
+        { to: "/library", label: t.nav.library, icon: BookOpen },
+      ],
+    },
+    {
+      title: t.nav.planning,
+      items: [
+        { to: "/teams", label: t.nav.teams, icon: Users },
+        { to: "/players", label: t.nav.players, icon: UserRound },
+        { to: "/calendar", label: t.nav.calendar, icon: CalendarRange },
+        { to: "/season", label: t.nav.season, icon: CalendarClock },
+        { to: "/favorites", label: t.nav.favorites, icon: Star },
+        { to: "/history", label: t.nav.history, icon: History },
+      ],
+    },
+    {
+      title: t.nav.account,
+      items: [
+        { to: "/profile", label: t.nav.profile, icon: CircleUserRound },
+        { to: "/settings", label: t.nav.settings, icon: Settings },
+      ],
+    },
+  ];
+
+  const MOBILE_NAV = [
+    { to: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
+    { to: "/ai-coach", label: t.nav.aiCoach, icon: Sparkles },
+    { to: "/training-builder", label: t.nav.trainingBuilder, icon: WandSparkles },
+    { to: "/teams", label: t.nav.teams, icon: Users },
+    { to: "/settings", label: t.nav.settings, icon: Settings },
+  ];
 
   async function signOut() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -105,19 +120,22 @@ export function AppShell({
             </div>
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-medium">{user.name || "—"}</div>
-              <div className="truncate text-[11px] text-muted-foreground">Treinador(a)</div>
+              <div className="truncate text-[11px] text-muted-foreground">{t.nav.role}</div>
             </div>
           </div>
-          <div className="flex items-center justify-between gap-2">
-            <ThemeToggle />
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              <LanguageSwitcher compact />
+            </div>
             <button
               type="button"
               onClick={signOut}
-              title="Sair"
+              title={t.nav.signOut}
               className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <LogOut className="h-4 w-4" />
-              <span className="sr-only">Sair</span>
+              <span className="sr-only">{t.nav.signOut}</span>
             </button>
           </div>
         </div>
@@ -128,10 +146,11 @@ export function AppShell({
           <Brandmark />
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle />
+            <LanguageSwitcher compact />
             <button
               type="button"
               onClick={signOut}
-              title="Sair"
+              title={t.nav.signOut}
               className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <LogOut className="h-4 w-4" />

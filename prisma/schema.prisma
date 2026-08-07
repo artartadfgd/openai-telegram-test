@@ -15,10 +15,12 @@ model User {
   role         String   @default("Treinador(a)")
   createdAt    DateTime @default(now())
 
-  teams         Team[]
-  players       Player[]
-  trainings     TrainingSession[]
-  conversations Conversation[]
+  teams              Team[]
+  players            Player[]
+  trainings          TrainingSession[]
+  conversations      Conversation[]
+  seasonPhases       SeasonPhase[]
+  scheduledTrainings ScheduledTraining[]
 }
 
 model Team {
@@ -38,6 +40,7 @@ model Team {
   players       Player[]
   trainings     TrainingSession[]
   conversations Conversation[]
+  seasonPhases  SeasonPhase[]
 }
 
 model Player {
@@ -94,4 +97,29 @@ model TrainingSession {
   doc              String // full JSON training document (blocks, coaching points, etc.)
   favorited        Boolean       @default(false)
   createdAt        DateTime      @default(now())
+
+  scheduled ScheduledTraining[]
+}
+
+model SeasonPhase {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  name      String
+  color     String   @default("#3B82F6")
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+}
+
+model ScheduledTraining {
+  id                String          @id @default(cuid())
+  userId            String
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trainingSessionId String
+  trainingSession   TrainingSession @relation(fields: [trainingSessionId], references: [id], onDelete: Cascade)
+  date              DateTime
+  createdAt         DateTime        @default(now())
 }

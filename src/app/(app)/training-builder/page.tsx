@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/context";
 
-const STEPS = ["Categoria", "Objetivo", "Contexto", "Materiais", "Revisão"];
 const CATEGORIES = [
   { value: "u6", label: "Sub-6 (iniciação)" },
   { value: "u11", label: "Sub-11" },
@@ -52,7 +52,9 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
 
 function TrainingBuilderInner() {
   const router = useRouter();
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
+  const STEPS = [t.trainingBuilder.stepCategory, t.trainingBuilder.stepObjective, t.trainingBuilder.stepContext, t.trainingBuilder.stepMaterials, t.trainingBuilder.stepReview];
   const [step, setStep] = useState(0);
   const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
   const [form, setForm] = useState({
@@ -72,7 +74,7 @@ function TrainingBuilderInner() {
   useEffect(() => {
     fetch("/api/teams")
       .then((r) => r.json())
-      .then((data) => setTeams(data.map((t: { id: string; name: string }) => ({ id: t.id, name: t.name }))));
+      .then((data) => setTeams(data.map((team: { id: string; name: string }) => ({ id: team.id, name: team.name }))));
   }, []);
 
   const canAdvance = step === 1 ? form.objective.trim().length > 2 : true;
@@ -90,9 +92,9 @@ function TrainingBuilderInner() {
     setLoading(false);
     if (!res.ok) {
       const messages: Record<string, string> = {
-        rate_limited: "Muitas requisições agora. Tente novamente em instantes.",
-        no_credits: "A chave da OpenAI não está configurada ou sem créditos. Verifique a variável OPENAI_KEY.",
-        ai_error: "Não foi possível gerar o treino agora. Tente novamente.",
+        rate_limited: t.errors.rateLimited,
+        no_credits: t.errors.noCredits,
+        ai_error: t.errors.aiError,
       };
       setError(messages[data.error] ?? messages.ai_error);
       return;
@@ -102,7 +104,7 @@ function TrainingBuilderInner() {
 
   return (
     <div className="mx-auto max-w-3xl pb-16">
-      <PageHeader title="Criar treino" description="Responda algumas perguntas e o CoachAI monta o plano completo com diagramas." />
+      <PageHeader title={t.trainingBuilder.title} description={t.trainingBuilder.subtitle} />
 
       <ol className="mb-6 grid grid-cols-5 gap-2">
         {STEPS.map((s, i) => (
@@ -121,12 +123,12 @@ function TrainingBuilderInner() {
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
         <p className="mb-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Passo {step + 1} de {STEPS.length}
+          {t.trainingBuilder.stepOf.replace("{n}", String(step + 1)).replace("{total}", String(STEPS.length))}
         </p>
 
         {step === 0 && (
           <div>
-            <Label className="text-sm">Categoria</Label>
+            <Label className="text-sm">{t.trainingBuilder.categoryLabel}</Label>
             <div className="mt-3 grid gap-2 md:grid-cols-2">
               {CATEGORIES.map((c) => (
                 <button
@@ -144,16 +146,18 @@ function TrainingBuilderInner() {
             </div>
             {teams.length > 0 && (
               <div className="mt-5">
-                <Label className="text-sm">Time (opcional)</Label>
+                <Label className="text-sm">
+                  {t.trainingBuilder.team} ({t.common.optional})
+                </Label>
                 <select
                   className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                   value={form.teamId}
                   onChange={(e) => setForm((f) => ({ ...f, teamId: e.target.value }))}
                 >
-                  <option value="">Nenhum time específico</option>
-                  {teams.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
+                  <option value="">{t.trainingBuilder.noTeam}</option>
+                  {teams.map((team) => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
                     </option>
                   ))}
                 </select>
@@ -165,7 +169,7 @@ function TrainingBuilderInner() {
         {step === 1 && (
           <div className="space-y-4">
             <div>
-              <Label className="text-sm">Objetivo do treino</Label>
+              <Label className="text-sm">{t.trainingBuilder.objectiveLabel}</Label>
               <div className="mt-3 flex flex-wrap gap-2">
                 {OBJECTIVE_SUGGESTIONS.map((o) => (
                   <button
@@ -185,7 +189,7 @@ function TrainingBuilderInner() {
             <Textarea
               value={form.objective}
               onChange={(e) => setForm((f) => ({ ...f, objective: e.target.value }))}
-              placeholder="Descreva o objetivo principal do treino..."
+              placeholder={t.trainingBuilder.objectivePlaceholder}
               rows={3}
             />
           </div>
@@ -194,15 +198,15 @@ function TrainingBuilderInner() {
         {step === 2 && (
           <div className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Número de jogadores">
+              <Field label={t.trainingBuilder.playersLabel}>
                 <Input type="number" min={4} max={40} value={form.players} onChange={(e) => setForm((f) => ({ ...f, players: Number(e.target.value) || 0 }))} />
               </Field>
-              <Field label="Duração (min)">
+              <Field label={t.trainingBuilder.durationLabel}>
                 <Input type="number" min={20} max={180} step={5} value={form.duration} onChange={(e) => setForm((f) => ({ ...f, duration: Number(e.target.value) || 0 }))} />
               </Field>
             </div>
             <div>
-              <Label className="text-sm">Quadra</Label>
+              <Label className="text-sm">{t.trainingBuilder.courtLabel}</Label>
               <div className="mt-2 grid gap-2 md:grid-cols-4">
                 {COURT_SETUPS.map((f) => (
                   <button
@@ -220,7 +224,7 @@ function TrainingBuilderInner() {
               </div>
             </div>
             <div>
-              <Label className="text-sm">Momento da semana</Label>
+              <Label className="text-sm">{t.trainingBuilder.weekMomentLabel}</Label>
               <div className="mt-2 grid gap-2 md:grid-cols-4">
                 {MOMENTS.map((m) => (
                   <button
@@ -242,32 +246,32 @@ function TrainingBuilderInner() {
 
         {step === 3 && (
           <div className="space-y-4">
-            <Field label="Materiais disponíveis">
+            <Field label={t.trainingBuilder.materialsLabel}>
               <Input
                 value={form.materials}
                 onChange={(e) => setForm((f) => ({ ...f, materials: e.target.value }))}
-                placeholder="Ex: 12 coletes, 20 cones, 6 bolas..."
+                placeholder={t.trainingBuilder.materialsPlaceholder}
               />
             </Field>
-            <Field label="Observações">
-              <Textarea value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} rows={3} placeholder="Alguma restrição, lesão, foco especial..." />
+            <Field label={t.trainingBuilder.notesLabel}>
+              <Textarea value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} rows={3} placeholder={t.trainingBuilder.notesPlaceholder} />
             </Field>
           </div>
         )}
 
         {step === 4 && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Revisão</h3>
-            <p className="text-sm text-muted-foreground">Confira os dados antes de gerar o treino com IA.</p>
+            <h3 className="text-lg font-semibold">{t.trainingBuilder.reviewTitle}</h3>
+            <p className="text-sm text-muted-foreground">{t.trainingBuilder.reviewDesc}</p>
             <dl className="grid gap-2 rounded-lg border border-border bg-background p-4 text-sm md:grid-cols-2">
-              <ReviewRow label="Categoria" value={CATEGORIES.find((c) => c.value === form.category)?.label ?? form.category} />
-              <ReviewRow label="Objetivo" value={form.objective || "—"} />
-              <ReviewRow label="Jogadores" value={String(form.players)} />
-              <ReviewRow label="Duração" value={`${form.duration} min`} />
-              <ReviewRow label="Quadra" value={COURT_SETUPS.find((f) => f.value === form.courtSetup)?.label ?? form.courtSetup} />
-              <ReviewRow label="Momento" value={MOMENTS.find((m) => m.value === form.weekMoment)?.label ?? form.weekMoment} />
-              {form.materials && <ReviewRow label="Materiais" value={form.materials} />}
-              {form.notes && <ReviewRow label="Observações" value={form.notes} />}
+              <ReviewRow label={t.trainingBuilder.categoryLabel} value={CATEGORIES.find((c) => c.value === form.category)?.label ?? form.category} />
+              <ReviewRow label={t.dashboard.objective} value={form.objective || "—"} />
+              <ReviewRow label={t.trainingBuilder.playersLabel} value={String(form.players)} />
+              <ReviewRow label={t.trainingBuilder.durationLabel} value={`${form.duration} min`} />
+              <ReviewRow label={t.trainingBuilder.courtLabel} value={COURT_SETUPS.find((f) => f.value === form.courtSetup)?.label ?? form.courtSetup} />
+              <ReviewRow label={t.trainingBuilder.weekMomentLabel} value={MOMENTS.find((m) => m.value === form.weekMoment)?.label ?? form.weekMoment} />
+              {form.materials && <ReviewRow label={t.trainingBuilder.materialsLabel} value={form.materials} />}
+              {form.notes && <ReviewRow label={t.trainingBuilder.notesLabel} value={form.notes} />}
             </dl>
             {error && <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
           </div>
@@ -276,25 +280,25 @@ function TrainingBuilderInner() {
         <div className="mt-8 flex items-center justify-between">
           <Button type="button" variant="ghost" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0 || loading} className="gap-1.5">
             <ArrowLeft className="h-4 w-4" />
-            Voltar
+            {t.trainingBuilder.back}
           </Button>
           {isLast ? (
             <Button type="button" onClick={generate} disabled={loading || !form.objective.trim()} className="gap-1.5">
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Gerando treino...
+                  {t.trainingBuilder.generating}
                 </>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  Gerar treino
+                  {t.trainingBuilder.generate}
                 </>
               )}
             </Button>
           ) : (
             <Button type="button" onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))} disabled={!canAdvance} className="gap-1.5">
-              Próximo
+              {t.trainingBuilder.next}
               <ArrowRight className="h-4 w-4" />
             </Button>
           )}

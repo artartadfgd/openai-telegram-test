@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, WandSparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/context";
 
 const CATEGORIES = [
   { value: "u6", label: "Sub-6" },
@@ -49,6 +50,7 @@ function Select({
 
 export function QuickCreateForm() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [category, setCategory] = useState("u14");
   const [objective, setObjective] = useState(OBJECTIVES[0]);
   const [duration, setDuration] = useState("75");
@@ -66,22 +68,22 @@ export function QuickCreateForm() {
           <WandSparkles className="h-4 w-4" />
         </div>
         <div>
-          <h2 className="text-base font-semibold tracking-tight">Criação rápida</h2>
-          <p className="text-xs text-muted-foreground">Monte um treino em segundos</p>
+          <h2 className="text-base font-semibold tracking-tight">{t.dashboard.quickCreateTitle}</h2>
+          <p className="text-xs text-muted-foreground">{t.dashboard.quickCreateSubtitle}</p>
         </div>
       </div>
 
       <div className="mt-5 grid gap-3">
-        <Select label="Categoria" value={category} onChange={setCategory} options={CATEGORIES} />
-        <Select label="Objetivo" value={objective} onChange={setObjective} options={OBJECTIVES.map((o) => ({ value: o, label: o }))} />
+        <Select label={t.dashboard.category} value={category} onChange={setCategory} options={CATEGORIES} />
+        <Select label={t.dashboard.objective} value={objective} onChange={setObjective} options={OBJECTIVES.map((o) => ({ value: o, label: o }))} />
         <div className="grid grid-cols-2 gap-3">
-          <Select label="Duração" value={duration} onChange={setDuration} options={[45, 60, 75, 90, 105, 120].map((n) => ({ value: String(n), label: `${n} min` }))} />
-          <Select label="Jogadores" value={players} onChange={setPlayers} options={[6, 8, 9, 10, 12, 14, 16].map((n) => ({ value: String(n), label: String(n) }))} />
+          <Select label={t.dashboard.duration} value={duration} onChange={setDuration} options={[45, 60, 75, 90, 105, 120].map((n) => ({ value: String(n), label: `${n} min` }))} />
+          <Select label={t.dashboard.players} value={players} onChange={setPlayers} options={[6, 8, 9, 10, 12, 14, 16].map((n) => ({ value: String(n), label: String(n) }))} />
         </div>
       </div>
 
       <Button className="mt-5 w-full gap-2" onClick={submit}>
-        Criar treino
+        {t.dashboard.quickCreateCta}
         <Plus className="h-4 w-4" />
       </Button>
     </div>

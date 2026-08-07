@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { TeamCrest, type CrestShape } from "@/components/team-crest";
 import { CATEGORIES, PLAY_STYLES, PRIORITIES, CREST_SHAPES, CREST_COLORS } from "@/lib/team-options";
+import { useTranslation } from "@/lib/i18n/context";
 
 type Team = {
   id: string;
@@ -37,6 +38,7 @@ const emptyForm = {
 };
 
 export default function TeamsPage() {
+  const { t } = useTranslation();
   const [teams, setTeams] = useState<Team[] | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Team | null>(null);
@@ -106,13 +108,13 @@ export default function TeamsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader
-        title="Times"
-        description="Organize seus times, sistemas de jogo e prioridades da temporada."
+        title={t.teams.title}
+        description={t.teams.subtitle}
         actions={
           teams && teams.length > 0 ? (
             <Button size="sm" className="gap-2" onClick={openCreate}>
               <Plus className="h-4 w-4" />
-              Novo time
+              {t.teams.newTeam}
             </Button>
           ) : undefined
         }
@@ -127,53 +129,53 @@ export default function TeamsPage() {
       ) : teams.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="Nenhum time cadastrado"
-          description="Crie seu primeiro time para começar a planejar treinos personalizados."
+          title={t.teams.emptyTitle}
+          description={t.teams.emptyDesc}
           action={
             <Button className="gap-2" onClick={openCreate}>
               <Plus className="h-4 w-4" />
-              Criar time
+              {t.teams.createButton}
             </Button>
           }
         />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {teams.map((t) => {
+          {teams.map((team) => {
             const readiness =
-              (t.crestShape ? 25 : 0) + (t.playStyle ? 25 : 0) + (t.priorities.length > 0 ? 25 : 0) + (t.seasonLabel ? 25 : 0);
+              (team.crestShape ? 25 : 0) + (team.playStyle ? 25 : 0) + (team.priorities.length > 0 ? 25 : 0) + (team.seasonLabel ? 25 : 0);
             return (
-              <div key={t.id} className="group relative">
+              <div key={team.id} className="group relative">
                 <div className="absolute right-2 top-2 z-10 flex gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100 max-md:opacity-100">
                   <button
                     type="button"
-                    aria-label="Editar"
-                    onClick={() => openEdit(t)}
+                    aria-label={t.common.edit}
+                    onClick={() => openEdit(team)}
                     className="rounded-md border border-border bg-background/90 p-1.5 text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
                     type="button"
-                    aria-label="Excluir"
-                    onClick={() => setDeleting(t)}
+                    aria-label={t.common.delete}
+                    onClick={() => setDeleting(team)}
                     className="rounded-md border border-border bg-background/90 p-1.5 text-muted-foreground backdrop-blur transition-colors hover:text-destructive"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
                 <Link
-                  href={`/players?teamId=${t.id}`}
+                  href={`/players?teamId=${team.id}`}
                   className="block rounded-xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
                 >
                   <div className="flex items-start gap-4">
-                    <TeamCrest name={t.name} shape={t.crestShape} primaryColor={t.primaryColor} secondaryColor={t.secondaryColor} size={64} />
+                    <TeamCrest name={team.name} shape={team.crestShape} primaryColor={team.primaryColor} secondaryColor={team.secondaryColor} size={64} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <h3 className="truncate text-base font-semibold">{t.name}</h3>
+                          <h3 className="truncate text-base font-semibold">{team.name}</h3>
                           <p className="text-xs text-muted-foreground">
-                            {t.category}
-                            {t.seasonLabel ? ` · ${t.seasonLabel}` : ""}
+                            {team.category}
+                            {team.seasonLabel ? ` · ${team.seasonLabel}` : ""}
                           </p>
                         </div>
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-primary/30 text-xs font-semibold text-primary">
@@ -181,12 +183,14 @@ export default function TeamsPage() {
                         </div>
                       </div>
                       <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-                        {t.playStyle && (
+                        {team.playStyle && (
                           <span className="rounded-full bg-muted px-2 py-0.5">
-                            {PLAY_STYLES.find((p) => p.value === t.playStyle)?.label ?? t.playStyle}
+                            {PLAY_STYLES.find((p) => p.value === team.playStyle)?.label ?? team.playStyle}
                           </span>
                         )}
-                        <span className="rounded-full bg-muted px-2 py-0.5">{t.playersCount} jogadores</span>
+                        <span className="rounded-full bg-muted px-2 py-0.5">
+                          {team.playersCount} {t.teams.playersCount}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -199,8 +203,8 @@ export default function TeamsPage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogHeader>
-          <DialogTitle>{editing ? "Editar time" : "Novo time"}</DialogTitle>
-          <DialogDescription>Defina a identidade e o sistema de jogo do time.</DialogDescription>
+          <DialogTitle>{editing ? t.teams.dialogEditTitle : t.teams.dialogCreateTitle}</DialogTitle>
+          <DialogDescription>{t.teams.dialogSubtitle}</DialogDescription>
         </DialogHeader>
 
         <div className="mt-4 max-h-[65vh] space-y-4 overflow-y-auto pr-1">
@@ -234,13 +238,13 @@ export default function TeamsPage() {
           </div>
 
           <div>
-            <Label htmlFor="team-name">Nome do time</Label>
+            <Label htmlFor="team-name">{t.teams.name}</Label>
             <Input id="team-name" className="mt-1.5" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="team-category">Categoria</Label>
+              <Label htmlFor="team-category">{t.teams.category}</Label>
               <select
                 id="team-category"
                 className="mt-1.5 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary"
@@ -255,7 +259,7 @@ export default function TeamsPage() {
               </select>
             </div>
             <div>
-              <Label htmlFor="team-season">Temporada</Label>
+              <Label htmlFor="team-season">{t.teams.season}</Label>
               <Input
                 id="team-season"
                 placeholder="2025/2026"
@@ -267,7 +271,7 @@ export default function TeamsPage() {
           </div>
 
           <div>
-            <Label>Sistema de jogo</Label>
+            <Label>{t.teams.playSystem}</Label>
             <div className="mt-2 grid grid-cols-2 gap-2">
               {PLAY_STYLES.map((s) => (
                 <button
@@ -285,7 +289,7 @@ export default function TeamsPage() {
           </div>
 
           <div>
-            <Label>Prioridades da temporada</Label>
+            <Label>{t.teams.priorities}</Label>
             <div className="mt-2 flex flex-wrap gap-2">
               {PRIORITIES.map((p) => (
                 <button
@@ -305,27 +309,25 @@ export default function TeamsPage() {
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => setDialogOpen(false)}>
-            Cancelar
+            {t.common.cancel}
           </Button>
           <Button onClick={save} disabled={saving || !form.name.trim()}>
-            {editing ? "Salvar alterações" : "Criar time"}
+            {editing ? t.teams.saveButton : t.teams.createButton}
           </Button>
         </DialogFooter>
       </Dialog>
 
       <Dialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <DialogHeader>
-          <DialogTitle>Excluir time</DialogTitle>
-          <DialogDescription>
-            Tem certeza que deseja excluir &ldquo;{deleting?.name}&rdquo;? Os jogadores vinculados também serão removidos. Essa ação não pode ser desfeita.
-          </DialogDescription>
+          <DialogTitle>{t.teams.deleteTitle}</DialogTitle>
+          <DialogDescription>{t.teams.deleteConfirm}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="ghost" onClick={() => setDeleting(null)}>
-            Cancelar
+            {t.common.cancel}
           </Button>
           <Button variant="destructive" onClick={confirmDelete}>
-            Excluir
+            {t.common.delete}
           </Button>
         </DialogFooter>
       </Dialog>
