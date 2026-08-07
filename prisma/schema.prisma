@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  role         String   @default("Treinador(a)")
+  createdAt    DateTime @default(now())
+
+  teams         Team[]
+  players       Player[]
+  trainings     TrainingSession[]
+  conversations Conversation[]
+}
+
+model Team {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  category     String
+  seasonLabel  String?
+  playStyle    String?
+  priorities   String   @default("[]") // JSON string array
+  crestShape   String   @default("shield")
+  primaryColor String   @default("#3B82F6")
+  secondaryColor String @default("#0b0b0e")
+  createdAt    DateTime @default(now())
+
+  players       Player[]
+  trainings     TrainingSession[]
+  conversations Conversation[]
+}
+
+model Player {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  name      String
+  position  String?
+  birthDate String?
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId    String?
+  team      Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages  Message[]
+  trainings TrainingSession[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String // user | assistant
+  content        String
+  createdAt      DateTime     @default(now())
+}
+
+model TrainingSession {
+  id               String        @id @default(cuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId           String?
+  team             Team?         @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  conversationId   String?
+  conversation     Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  title            String
+  objective        String
+  category         String
+  totalDurationMin Int
+  playersCount     Int
+  field            String
+  intensity        Int           @default(2)
+  doc              String // full JSON training document (blocks, coaching points, etc.)
+  favorited        Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+}
