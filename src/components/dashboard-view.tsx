@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Clock, Plus, Sparkles, Target, Trophy, Users, Zap, Swords, ShieldCheck, Hand, Radar, RotateCw } from "lucide-react";
+import { Bell, Clock, Mail, Plus, Sparkles, Target, Trophy, Users, Zap, Swords, ShieldCheck, Hand, Radar, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/metric-card";
 import { QuickCreateForm } from "@/components/quick-create-form";
@@ -202,6 +202,24 @@ export function DashboardView({ firstName, stats }: { firstName: string; stats: 
             </Button>
           </div>
         )}
+      </section>
+
+      <section className="mt-8 animate-fade-in" style={{ animationDelay: "480ms", animationFillMode: "both" }}>
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 text-center shadow-sm sm:flex-row sm:text-left">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Mail className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-sm font-semibold">{t.dashboard.supportTitle}</h2>
+            <p className="mt-0.5 text-sm text-muted-foreground">{t.dashboard.supportDesc}</p>
+          </div>
+          <Button variant="outline" asChild className="gap-2">
+            <a href="mailto:suportesafeoffer@gmail.com">
+              <Mail className="h-4 w-4" />
+              {t.dashboard.supportCta}
+            </a>
+          </Button>
+        </div>
       </section>
     </div>
   );

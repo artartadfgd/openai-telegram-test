@@ -1,7 +1,17 @@
 import OpenAI from "openai";
 import type { VolleyballDoc } from "@/lib/volleyball";
+import type { Locale } from "@/lib/i18n/dictionary";
 
 export type { VolleyballDoc as TrainingDoc } from "@/lib/volleyball";
+
+const LANGUAGE_NAME: Record<Locale, string> = {
+  pt: "português do Brasil",
+  en: "English",
+  es: "español",
+  fr: "français",
+  it: "italiano",
+  de: "Deutsch",
+};
 
 let client: OpenAI | null = null;
 function getClient() {
@@ -141,26 +151,30 @@ const trainingDocSchema = {
   },
 };
 
-const SYSTEM_PROMPT = `Você é o CoachAI, um assistente especializado em planejamento de treinos de voleibol para treinadores.
-Ao receber um pedido de treino, responda SEMPRE com um documento de treino estruturado e completo em português do Brasil.
+function buildSystemPrompt(locale: Locale) {
+  return `Você é o CoachAI, um assistente especializado em planejamento de treinos de voleibol para treinadores.
+Ao receber um pedido de treino, responda SEMPRE com um documento de treino estruturado e completo.
 Regras importantes para os diagramas de quadra:
 - Coordenadas x,y são porcentagens de 0 a 100 dentro da quadra (x = largura, lateral a lateral; y = comprimento, onde y=50 é a rede, y=0-50 é o lado B e y=50-100 é o lado A).
 - Use "team":"A" para o time/grupo que executa o exercício, "B" para o lado adversário/oposto da rede, "N" para neutros (ex: levantador de apoio, alvo).
 - Sempre posicione jogadores de forma realista respeitando as posições de rotação do voleibol (1 a 6) quando fizer sentido.
-- O tipo de quadra (courtSetup) pode ser: "quadra completa", "meia quadra", "zona de ataque" ou "quadra reduzida" — escolha o que fizer mais sentido pro exercício.
-- Tipos de seta: "serve" (saque), "set" (levantamento), "spike" (ataque/cortada), "block" (bloqueio), "dig" (defesa/manchete), "move" (deslocamento).
+- O tipo de quadra (courtSetup) deve descrever algo como "quadra completa", "meia quadra", "zona de ataque" ou "quadra reduzida" (traduzido para o idioma de resposta) — escolha o que fizer mais sentido pro exercício.
+- Tipos de seta (enum fixo, não traduzir): "serve" (saque), "set" (levantamento), "spike" (ataque/cortada), "block" (bloqueio), "dig" (defesa/manchete), "move" (deslocamento).
 - Cada bloco deve ter uma duração coerente que some (aproximadamente) o total do treino.
 - coachingPoints, technicalActions e tacticalPrinciple devem ser específicos e acionáveis, nunca genéricos, sempre no contexto de voleibol (recepção, levantamento, ataque, bloqueio, saque, defesa, rodízio, sistema tático).
-Seja didático, prático e direto, como um treinador experiente de voleibol escrevendo para outro treinador.`;
+Seja didático, prático e direto, como um treinador experiente de voleibol escrevendo para outro treinador.
 
-export async function generateTrainingDoc(userPrompt: string): Promise<VolleyballDoc> {
+IMPORTANTE: Escreva TODO o texto do documento (title, objective, category, courtSetup, materials, e dentro de cada bloco: title, description, coachingPoints, technicalActions, tacticalPrinciple, além de progressions, regressions, socioAffective, notes) em ${LANGUAGE_NAME[locale]}. Apenas os valores de "team" e "type" dos diagramas devem permanecer nos códigos fixos em inglês definidos no schema.`;
+}
+
+export async function generateTrainingDoc(userPrompt: string, locale: Locale = "pt"): Promise<VolleyballDoc> {
   const openai = getClient();
   let completion;
   try {
     completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: buildSystemPrompt(locale) },
         { role: "user", content: userPrompt },
       ],
       response_format: {
@@ -184,7 +198,7 @@ export async function generateTrainingDoc(userPrompt: string): Promise<Volleybal
   }
 }
 
-export async function chatReply(history: { role: "user" | "assistant"; content: string }[]): Promise<string> {
+export async function chatReply(history: { role: "user" | "assistant"; content: string }[], locale: Locale = "pt"): Promise<string> {
   const openai = getClient();
   try {
     const completion = await openai.chat.completions.create({
@@ -192,8 +206,7 @@ export async function chatReply(history: { role: "user" | "assistant"; content: 
       messages: [
         {
           role: "system",
-          content:
-            "Você é o CoachAI, assistente de treinadores de voleibol. Converse de forma curta, prática e amigável em português do Brasil. Se o usuário pedir um treino/sessão de treino específica, responda apenas confirmando que vai montar o plano (o sistema cuidará de gerar o documento estruturado separadamente).",
+          content: `Você é o CoachAI, assistente de treinadores de voleibol. Converse de forma curta, prática e amigável. Responda SEMPRE em ${LANGUAGE_NAME[locale]}, independentemente do idioma usado pelo usuário. Se o usuário pedir um treino/sessão de treino específica, responda apenas confirmando que vai montar o plano (o sistema cuidará de gerar o documento estruturado separadamente).`,
         },
         ...history,
       ],
@@ -210,5 +223,7 @@ export async function chatReply(history: { role: "user" | "assistant"; content: 
 
 export function looksLikeTrainingRequest(text: string) {
   const t = text.toLowerCase();
-  return /treino|sess[aã]o|exerc[ií]cio|aquecimento|treinamento/.test(t);
+  return /treino|sess[aã]o|exerc[ií]cio|aquecimento|treinamento|training|session|exercise|warm-?up|entrenamiento|ejercicio|calentamiento|entra[iî]nement|s[eé]ance|exercice|[ée]chauffement|allenamento|riscaldamento|übung|einheit|aufwärmen/.test(
+    t
+  );
 }

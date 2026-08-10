@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getSessionUserId } from "@/lib/auth";
 import { sendCoachMessage } from "@/lib/conversation";
+import { dictionaries, LOCALES, type Locale } from "@/lib/i18n/dictionary";
 
 const schema = z.object({
   category: z.string(),
@@ -13,29 +14,26 @@ const schema = z.object({
   materials: z.string().optional().default(""),
   notes: z.string().optional().default(""),
   teamId: z.string().nullable().optional(),
+  locale: z.enum(LOCALES).optional(),
 });
 
-const CATEGORY_LABEL: Record<string, string> = { u6: "Sub-6", u11: "Sub-11", u14: "Sub-14", u16: "Sub-16", pro: "Profissional" };
-const COURT_LABEL: Record<string, string> = { reduced: "quadra reduzida", attack: "zona de ataque", half: "meia quadra", full: "quadra completa" };
-const MOMENT_LABEL: Record<string, string> = {
-  preSeason: "pré-temporada",
-  midWeek: "meio de semana",
-  matchWeek: "semana de jogo",
-  post: "pós-jogo (regenerativo)",
-};
+function buildPrompt(data: z.infer<typeof schema>, locale: Locale) {
+  const t = dictionaries[locale].trainingBuilder;
+  const categoryLabels: Record<string, string> = { u6: t.categoryU6, u11: t.categoryU11, u14: t.categoryU14, u16: t.categoryU16, pro: t.categoryPro };
+  const courtLabels: Record<string, string> = { reduced: t.courtReduced, attack: t.courtAttack, half: t.courtHalf, full: t.courtFull };
+  const momentLabels: Record<string, string> = { preSeason: t.momentPreSeason, midWeek: t.momentMidWeek, matchWeek: t.momentMatchWeek, post: t.momentPost };
 
-function buildPrompt(data: z.infer<typeof schema>) {
   const lines = [
-    `Categoria: ${CATEGORY_LABEL[data.category] ?? data.category}`,
-    `Número de jogadores: ${data.players}`,
-    `Duração total: ${data.duration} min`,
-    `Quadra: ${COURT_LABEL[data.courtSetup] ?? data.courtSetup}`,
-    `Momento da semana: ${MOMENT_LABEL[data.weekMoment] ?? data.weekMoment}`,
-    `Objetivo principal: ${data.objective}`,
+    `${t.categoryLabel}: ${categoryLabels[data.category] ?? data.category}`,
+    `${t.playersLabel}: ${data.players}`,
+    `${t.durationLabel}: ${data.duration} min`,
+    `${t.courtLabel}: ${courtLabels[data.courtSetup] ?? data.courtSetup}`,
+    `${t.weekMomentLabel}: ${momentLabels[data.weekMoment] ?? data.weekMoment}`,
+    `${t.objectiveLabel}: ${data.objective}`,
   ];
-  if (data.materials.trim()) lines.push(`Materiais disponíveis: ${data.materials.trim()}`);
-  if (data.notes.trim()) lines.push(`Observações: ${data.notes.trim()}`);
-  return `Monte um treino de voleibol com os seguintes parâmetros:\n${lines.join("\n")}`;
+  if (data.materials.trim()) lines.push(`${t.materialsLabel}: ${data.materials.trim()}`);
+  if (data.notes.trim()) lines.push(`${t.notesLabel}: ${data.notes.trim()}`);
+  return `${t.title}:\n${lines.join("\n")}`;
 }
 
 export async function POST(req: NextRequest) {
@@ -45,13 +43,16 @@ export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid" }, { status: 400 });
 
+  const locale: Locale = parsed.data.locale ?? "pt";
+
   try {
     const result = await sendCoachMessage({
       userId,
       conversationId: null,
       teamId: parsed.data.teamId ?? null,
-      text: buildPrompt(parsed.data),
+      text: buildPrompt(parsed.data, locale),
       forceTraining: true,
+      locale,
     });
     return NextResponse.json(result);
   } catch (err) {

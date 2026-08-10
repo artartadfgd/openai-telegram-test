@@ -6,16 +6,6 @@ import { Plus, WandSparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
 
-const CATEGORIES = [
-  { value: "u6", label: "Sub-6" },
-  { value: "u11", label: "Sub-11" },
-  { value: "u14", label: "Sub-14" },
-  { value: "u16", label: "Sub-16" },
-  { value: "pro", label: "Profissional" },
-];
-
-const OBJECTIVES = ["Recepção de saque", "Ataque de posição 4", "Bloqueio duplo", "Levantamento e distribuição", "Defesa de quadra"];
-
 function Select({
   label,
   value,
@@ -51,6 +41,14 @@ function Select({
 export function QuickCreateForm() {
   const router = useRouter();
   const { t } = useTranslation();
+  const CATEGORIES = [
+    { value: "u6", label: t.trainingBuilder.categoryU6 },
+    { value: "u11", label: t.trainingBuilder.categoryU11 },
+    { value: "u14", label: t.trainingBuilder.categoryU14 },
+    { value: "u16", label: t.trainingBuilder.categoryU16 },
+    { value: "pro", label: t.trainingBuilder.categoryPro },
+  ];
+  const OBJECTIVES = t.trainingBuilder.objectiveSuggestions.slice(0, 5);
   const [category, setCategory] = useState("u14");
   const [objective, setObjective] = useState(OBJECTIVES[0]);
   const [duration, setDuration] = useState("75");

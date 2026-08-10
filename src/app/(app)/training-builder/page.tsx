@@ -10,27 +10,33 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n/context";
+import type { Dictionary } from "@/lib/i18n/dictionary";
 
-const CATEGORIES = [
-  { value: "u6", label: "Sub-6 (iniciação)" },
-  { value: "u11", label: "Sub-11" },
-  { value: "u14", label: "Sub-14" },
-  { value: "u16", label: "Sub-16" },
-  { value: "pro", label: "Profissional" },
-];
-const OBJECTIVE_SUGGESTIONS = ["Recepção de saque", "Ataque de posição 4", "Bloqueio duplo", "Levantamento e distribuição", "Defesa de quadra", "Saque flutuante"];
-const COURT_SETUPS = [
-  { value: "reduced", label: "Quadra reduzida" },
-  { value: "attack", label: "Zona de ataque" },
-  { value: "half", label: "Meia quadra" },
-  { value: "full", label: "Quadra completa" },
-];
-const MOMENTS = [
-  { value: "preSeason", label: "Pré-temporada" },
-  { value: "midWeek", label: "Meio de semana" },
-  { value: "matchWeek", label: "Semana de jogo" },
-  { value: "post", label: "Pós-jogo" },
-];
+function categories(t: Dictionary) {
+  return [
+    { value: "u6", label: t.trainingBuilder.categoryU6 },
+    { value: "u11", label: t.trainingBuilder.categoryU11 },
+    { value: "u14", label: t.trainingBuilder.categoryU14 },
+    { value: "u16", label: t.trainingBuilder.categoryU16 },
+    { value: "pro", label: t.trainingBuilder.categoryPro },
+  ];
+}
+function courtSetups(t: Dictionary) {
+  return [
+    { value: "reduced", label: t.trainingBuilder.courtReduced },
+    { value: "attack", label: t.trainingBuilder.courtAttack },
+    { value: "half", label: t.trainingBuilder.courtHalf },
+    { value: "full", label: t.trainingBuilder.courtFull },
+  ];
+}
+function moments(t: Dictionary) {
+  return [
+    { value: "preSeason", label: t.trainingBuilder.momentPreSeason },
+    { value: "midWeek", label: t.trainingBuilder.momentMidWeek },
+    { value: "matchWeek", label: t.trainingBuilder.momentMatchWeek },
+    { value: "post", label: t.trainingBuilder.momentPost },
+  ];
+}
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -52,9 +58,13 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
 
 function TrainingBuilderInner() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const searchParams = useSearchParams();
   const STEPS = [t.trainingBuilder.stepCategory, t.trainingBuilder.stepObjective, t.trainingBuilder.stepContext, t.trainingBuilder.stepMaterials, t.trainingBuilder.stepReview];
+  const CATEGORIES = categories(t);
+  const COURT_SETUPS = courtSetups(t);
+  const MOMENTS = moments(t);
+  const OBJECTIVE_SUGGESTIONS = t.trainingBuilder.objectiveSuggestions;
   const [step, setStep] = useState(0);
   const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
   const [form, setForm] = useState({
@@ -86,7 +96,7 @@ function TrainingBuilderInner() {
     const res = await fetch("/api/training/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, teamId: form.teamId || null }),
+      body: JSON.stringify({ ...form, teamId: form.teamId || null, locale }),
     });
     const data = await res.json();
     setLoading(false);

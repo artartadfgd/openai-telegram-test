@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getSessionUserId } from "@/lib/auth";
 import { sendCoachMessage } from "@/lib/conversation";
+import { LOCALES } from "@/lib/i18n/dictionary";
 
 const schema = z.object({
   conversationId: z.string().nullable().optional(),
   teamId: z.string().nullable().optional(),
   text: z.string().min(1).max(2000),
+  locale: z.enum(LOCALES).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -22,6 +24,7 @@ export async function POST(req: NextRequest) {
       conversationId: parsed.data.conversationId ?? null,
       teamId: parsed.data.teamId ?? null,
       text: parsed.data.text,
+      locale: parsed.data.locale,
     });
     return NextResponse.json(result);
   } catch (err) {

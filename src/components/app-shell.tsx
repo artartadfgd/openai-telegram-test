@@ -16,6 +16,7 @@ import {
   CalendarClock,
   Star,
   CircleUserRound,
+  Mail,
 } from "lucide-react";
 import { Brandmark } from "@/components/brandmark";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -59,6 +60,7 @@ export function AppShell({
       items: [
         { to: "/profile", label: t.nav.profile, icon: CircleUserRound },
         { to: "/settings", label: t.nav.settings, icon: Settings },
+        { to: "mailto:suportesafeoffer@gmail.com", label: t.nav.support, icon: Mail },
       ],
     },
   ];

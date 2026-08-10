@@ -32,15 +32,10 @@ function Message({ role, text }: { role: "user" | "assistant"; text: string }) {
   );
 }
 
-const SUGGESTIONS = [
-  "Monte um treino de ataque de posição 4 para sub-14, 60 minutos",
-  "Como melhorar o bloqueio duplo do meu time?",
-  "Preciso de um aquecimento de 15 minutos para pré-temporada",
-];
-
 function AiCoachInner() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const SUGGESTIONS = [t.aiCoach.suggestion1, t.aiCoach.suggestion2, t.aiCoach.suggestion3];
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("c");
 
@@ -100,7 +95,7 @@ function AiCoachInner() {
     const res = await fetch("/api/ai-coach/message", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationId, teamId, text: trimmed }),
+      body: JSON.stringify({ conversationId, teamId, text: trimmed, locale }),
     });
     const data = await res.json();
     setSending(false);

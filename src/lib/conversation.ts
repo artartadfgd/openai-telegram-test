@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { generateTrainingDoc, chatReply, looksLikeTrainingRequest, type TrainingDoc } from "@/lib/ai";
+import { dictionaries, LOCALES, type Locale } from "@/lib/i18n/dictionary";
 
 export async function sendCoachMessage({
   userId,
@@ -7,13 +8,16 @@ export async function sendCoachMessage({
   teamId,
   text,
   forceTraining = false,
+  locale = "pt",
 }: {
   userId: string;
   conversationId: string | null;
   teamId?: string | null;
   text: string;
   forceTraining?: boolean;
+  locale?: Locale;
 }) {
+  const safeLocale: Locale = (LOCALES as readonly string[]).includes(locale) ? locale : "pt";
   let conversation = conversationId ? await db.conversation.findFirst({ where: { id: conversationId, userId } }) : null;
   const isNewConversation = !conversation;
   if (!conversation) {
@@ -30,7 +34,7 @@ export async function sendCoachMessage({
     let trainingDoc: TrainingDoc | null = null;
 
     if (wantsTraining) {
-      trainingDoc = await generateTrainingDoc(text);
+      trainingDoc = await generateTrainingDoc(text, safeLocale);
       await db.trainingSession.create({
         data: {
           userId,
@@ -46,12 +50,12 @@ export async function sendCoachMessage({
           doc: JSON.stringify(trainingDoc),
         },
       });
+      const readyMessage = dictionaries[safeLocale].aiCoach.trainingReady
+        .replace("{title}", trainingDoc.title)
+        .replace("{blocks}", String(trainingDoc.blocks.length))
+        .replace("{duration}", String(trainingDoc.totalDurationMin));
       await db.message.create({
-        data: {
-          conversationId: conversation.id,
-          role: "assistant",
-          content: `Prontinho! Preparei "${trainingDoc.title}" com ${trainingDoc.blocks.length} blocos e ${trainingDoc.totalDurationMin} minutos. Dá uma olhada no plano completo abaixo.`,
-        },
+        data: { conversationId: conversation.id, role: "assistant", content: readyMessage },
       });
       if (!conversation.title) {
         await db.conversation.update({ where: { id: conversation.id }, data: { title: trainingDoc.title } });
@@ -62,7 +66,10 @@ export async function sendCoachMessage({
         orderBy: { createdAt: "asc" },
         take: 20,
       });
-      const reply = await chatReply(history.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })));
+      const reply = await chatReply(
+        history.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+        safeLocale
+      );
       await db.message.create({ data: { conversationId: conversation.id, role: "assistant", content: reply } });
       if (!conversation.title) {
         await db.conversation.update({ where: { id: conversation.id }, data: { title: text.slice(0, 60) } });
