@@ -14,7 +14,7 @@ async function getAccessToken(): Promise<string> {
 
   const clientId = process.env.HOTMART_CLIENT_ID!;
   const clientSecret = process.env.HOTMART_CLIENT_SECRET!;
-  const basicToken = process.env.HOTMART_BASIC_TOKEN!;
+  const basicToken = process.env.HOTMART_BASIC_TOKEN!.replace(/^Basic\s+/i, "");
 
   const url = `${TOKEN_URL}?grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`;
   const res = await fetch(url, {
