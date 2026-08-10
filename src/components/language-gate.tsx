@@ -36,12 +36,12 @@ export function LanguageGate({ children }: { children: React.ReactNode }) {
 
   if (!chosen) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="flex min-h-screen items-center justify-center bg-primary px-4">
         <div className="w-full max-w-sm">
-          <div className="mb-6 flex justify-center">
-            <Brandmark />
-          </div>
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-lg">
+            <div className="mb-6 flex justify-center">
+              <Brandmark />
+            </div>
             <div className="flex items-center justify-center gap-2 text-muted-foreground">
               <Globe className="h-4 w-4" />
               <span className="text-sm">Language / Idioma</span>
