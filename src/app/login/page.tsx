@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Brandmark } from "@/components/brandmark";
 import { LanguageGate } from "@/components/language-gate";
+import { PurchaseGate } from "@/components/purchase-gate";
 import { useTranslation } from "@/lib/i18n/context";
 import { Loader2 } from "lucide-react";
 
@@ -31,7 +32,12 @@ export default function LoginPage() {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) {
-      setError(data.error ?? t.auth.loginError);
+      const messages: Record<string, string> = {
+        invalid_credentials: t.auth.loginError,
+        purchase_not_found: t.purchase.notFound,
+        hotmart_error: t.purchase.error,
+      };
+      setError(messages[data.error] ?? t.auth.loginError);
       return;
     }
     router.push("/dashboard");
@@ -40,42 +46,44 @@ export default function LoginPage() {
 
   return (
     <LanguageGate>
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="w-full max-w-sm">
-          <div className="mb-6 flex justify-center">
-            <Brandmark />
-          </div>
-          <form onSubmit={onSubmit} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <h1 className="text-lg font-semibold">{t.auth.loginTitle}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{t.auth.loginSubtitle}</p>
-
-            <div className="mt-5 space-y-4">
-              <div>
-                <Label htmlFor="email">{t.auth.email}</Label>
-                <Input id="email" type="email" required autoFocus className="mt-1.5" value={email} onChange={(e) => setEmail(e.target.value)} />
-              </div>
-              <div>
-                <Label htmlFor="password">{t.auth.password}</Label>
-                <Input id="password" type="password" required className="mt-1.5" value={password} onChange={(e) => setPassword(e.target.value)} />
-              </div>
+      <PurchaseGate>
+        <div className="flex min-h-screen items-center justify-center bg-background px-4">
+          <div className="w-full max-w-sm">
+            <div className="mb-6 flex justify-center">
+              <Brandmark />
             </div>
+            <form onSubmit={onSubmit} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h1 className="text-lg font-semibold">{t.auth.loginTitle}</h1>
+              <p className="mt-1 text-sm text-muted-foreground">{t.auth.loginSubtitle}</p>
 
-            {error && <div className="mt-4 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
+              <div className="mt-5 space-y-4">
+                <div>
+                  <Label htmlFor="email">{t.auth.email}</Label>
+                  <Input id="email" type="email" required autoFocus className="mt-1.5" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
+                <div>
+                  <Label htmlFor="password">{t.auth.password}</Label>
+                  <Input id="password" type="password" required className="mt-1.5" value={password} onChange={(e) => setPassword(e.target.value)} />
+                </div>
+              </div>
 
-            <Button type="submit" className="mt-6 w-full gap-2" disabled={loading}>
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {t.auth.loginButton}
-            </Button>
+              {error && <div className="mt-4 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
 
-            <p className="mt-4 text-center text-sm text-muted-foreground">
-              {t.auth.noAccount}{" "}
-              <Link href="/signup" className="font-medium text-primary hover:underline">
-                {t.auth.signupLink}
-              </Link>
-            </p>
-          </form>
+              <Button type="submit" className="mt-6 w-full gap-2" disabled={loading}>
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {t.auth.loginButton}
+              </Button>
+
+              <p className="mt-4 text-center text-sm text-muted-foreground">
+                {t.auth.noAccount}{" "}
+                <Link href="/signup" className="font-medium text-primary hover:underline">
+                  {t.auth.signupLink}
+                </Link>
+              </p>
+            </form>
+          </div>
         </div>
-      </div>
+      </PurchaseGate>
     </LanguageGate>
   );
 }
