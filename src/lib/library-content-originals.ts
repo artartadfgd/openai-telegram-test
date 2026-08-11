@@ -1,5 +1,5 @@
 import type { Locale } from "@/lib/i18n/dictionary";
-import type { CourtDiagram, CuratedTemplate } from "@/lib/volleyball";
+import type { CourtDiagram, CuratedTemplate, SkillType } from "@/lib/volleyball";
 
 type Loc = Record<Locale, string>;
 type LocArr = Record<Locale, string[]>;
@@ -20,6 +20,7 @@ type OBlock = {
 
 type OTemplate = {
   slug: string;
+  skillType: SkillType;
   coverFrom: string;
   coverTo: string;
   totalDurationMin: number;
@@ -38,6 +39,7 @@ type OTemplate = {
 const ORIGINALS: OTemplate[] = [
   {
     slug: "toque-sem-medo",
+    skillType: "pass",
     coverFrom: "#3B82F6",
     coverTo: "#1D4ED8",
     totalDurationMin: 50,
@@ -267,6 +269,7 @@ const ORIGINALS: OTemplate[] = [
   },
   {
     slug: "saque-certeiro",
+    skillType: "serve",
     coverFrom: "#22C55E",
     coverTo: "#15803D",
     totalDurationMin: 55,
@@ -492,6 +495,7 @@ const ORIGINALS: OTemplate[] = [
   },
   {
     slug: "ataque-matador",
+    skillType: "attack",
     coverFrom: "#F97316",
     coverTo: "#C2410C",
     totalDurationMin: 60,
@@ -725,6 +729,7 @@ const ORIGINALS: OTemplate[] = [
   },
   {
     slug: "a-muralha",
+    skillType: "block",
     coverFrom: "#A855F7",
     coverTo: "#6D28D9",
     totalDurationMin: 55,
@@ -956,6 +961,7 @@ const ORIGINALS: OTemplate[] = [
   },
   {
     slug: "leia-o-jogo",
+    skillType: "defense",
     coverFrom: "#14B8A6",
     coverTo: "#0F766E",
     totalDurationMin: 60,
@@ -1190,6 +1196,7 @@ const ORIGINALS: OTemplate[] = [
   },
   {
     slug: "ritmo-de-rodizio",
+    skillType: "rotation",
     coverFrom: "#6366F1",
     coverTo: "#4338CA",
     totalDurationMin: 65,
@@ -1421,6 +1428,7 @@ const ORIGINALS: OTemplate[] = [
   },
   {
     slug: "precisao-do-libero",
+    skillType: "libero",
     coverFrom: "#F59E0B",
     coverTo: "#B45309",
     totalDurationMin: 60,
@@ -1657,6 +1665,7 @@ const ORIGINALS: OTemplate[] = [
   },
   {
     slug: "pronto-pro-jogo",
+    skillType: "pressure",
     coverFrom: "#F43F5E",
     coverTo: "#9F1239",
     totalDurationMin: 70,
@@ -1884,6 +1893,7 @@ const ORIGINALS: OTemplate[] = [
 function buildLocale(locale: Locale): CuratedTemplate[] {
   return ORIGINALS.map((t) => ({
     slug: t.slug,
+    skillType: t.skillType,
     category: t.category[locale],
     hook: t.hook[locale],
     title: t.title[locale],

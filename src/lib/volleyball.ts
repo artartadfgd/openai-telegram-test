@@ -45,8 +45,25 @@ export type CuratedBlock = VolleyballBlock & {
   variants?: { harder?: string; easier?: string };
 };
 
+export type SkillType =
+  | "serve"
+  | "pass"
+  | "set"
+  | "attack"
+  | "block"
+  | "defense"
+  | "libero"
+  | "rotation"
+  | "coverage"
+  | "transition"
+  | "communication"
+  | "smallSided"
+  | "conditioning"
+  | "pressure";
+
 export type CuratedTemplate = {
   slug: string;
+  skillType: SkillType;
   category: string;
   hook: string;
   title: string;

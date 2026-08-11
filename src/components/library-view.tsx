@@ -7,9 +7,11 @@ import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { VolleyballCourt } from "@/components/volleyball-court";
 import { CuratedCard } from "@/components/curated-card";
+import { LibraryFilterBar } from "@/components/library-filter-bar";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/lib/i18n/context";
 import { getLibraryTemplates } from "@/lib/library-content";
+import type { SkillType } from "@/lib/volleyball";
 import type { TrainingDoc } from "@/lib/ai";
 
 type LibrarySession = {
@@ -27,8 +29,13 @@ export function LibraryView({ sessions }: { sessions: LibrarySession[] }) {
   const { t, locale } = useTranslation();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
+  const [skillFilter, setSkillFilter] = useState<SkillType | "all">("all");
 
-  const templates = useMemo(() => getLibraryTemplates(locale), [locale]);
+  const allTemplates = useMemo(() => getLibraryTemplates(locale), [locale]);
+  const templates = useMemo(
+    () => (skillFilter === "all" ? allTemplates : allTemplates.filter((tpl) => tpl.skillType === skillFilter)),
+    [allTemplates, skillFilter]
+  );
 
   const categories = useMemo(() => Array.from(new Set(sessions.map((s) => s.category).filter(Boolean))), [sessions]);
 
@@ -47,6 +54,7 @@ export function LibraryView({ sessions }: { sessions: LibrarySession[] }) {
 
       <section className="mb-10">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t.library.readyMade}</h2>
+        <LibraryFilterBar value={skillFilter} onChange={setSkillFilter} />
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
             <li key={template.slug}>

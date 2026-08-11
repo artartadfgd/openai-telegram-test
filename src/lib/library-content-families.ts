@@ -1,5 +1,5 @@
 import type { Locale } from "@/lib/i18n/dictionary";
-import type { CourtDiagram, CuratedTemplate } from "@/lib/volleyball";
+import type { CourtDiagram, CuratedTemplate, SkillType } from "@/lib/volleyball";
 import { LEVEL_LABEL, LEVEL_DURATION, LEVEL_PLAYERS, LEVEL_INTENSITY, COURT_SETUP, MATERIAL } from "@/lib/library-vocab";
 
 type Loc = Record<Locale, string>;
@@ -1347,10 +1347,28 @@ const FAMILIES: Family[] = [
   },
 ];
 
+const FAMILY_SKILL_TYPE: Record<string, SkillType> = {
+  "passe-recepcao": "pass",
+  saque: "serve",
+  levantamento: "set",
+  ataque: "attack",
+  bloqueio: "block",
+  defesa: "defense",
+  libero: "libero",
+  rodizio: "rotation",
+  cobertura: "coverage",
+  transicao: "transition",
+  comunicacao: "communication",
+  "jogo-reduzido": "smallSided",
+  condicionamento: "conditioning",
+  pressao: "pressure",
+};
+
 function buildFamilyLocale(family: Family, levelIndex: 0 | 1 | 2, locale: Locale): CuratedTemplate {
   const lvl = family.levels[levelIndex];
   return {
     slug: `${family.id}-${levelIndex}`,
+    skillType: FAMILY_SKILL_TYPE[family.id] ?? "pass",
     category: LEVEL_LABEL[levelIndex][locale],
     hook: lvl.hook[locale],
     title: lvl.title[locale],

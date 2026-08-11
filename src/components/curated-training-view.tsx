@@ -74,7 +74,7 @@ export function CuratedTrainingView({ slug }: { slug: string }) {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`/library-covers/${template.slug}.jpg`}
+          src={`/library-covers/${template.slug}-1.jpg`}
           alt=""
           className="absolute inset-0 h-full w-full object-cover opacity-20 print:hidden"
           loading="lazy"
@@ -122,8 +122,18 @@ export function CuratedTrainingView({ slug }: { slug: string }) {
               }}
               className="group flex w-32 shrink-0 flex-col gap-1 rounded-lg border border-border bg-background p-1.5 transition-colors hover:border-primary/50"
             >
-              <div className="overflow-hidden rounded-md">
+              <div className="relative aspect-[3/2] overflow-hidden rounded-md">
                 <VolleyballCourt diagram={b.diagram} animated={false} />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/library-covers/${template.slug}-${b.order}.jpg`}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
               </div>
               <div className="px-1 pb-0.5">
                 <div className="truncate text-[11px] font-medium">
@@ -164,8 +174,18 @@ export function CuratedTrainingView({ slug }: { slug: string }) {
                   {ranges[i].from}–{ranges[i].to}&apos;
                 </span>
               </div>
-              <div className="mt-3 max-w-xl">
+              <div className="relative mt-3 aspect-[3/2] max-w-xl overflow-hidden rounded-lg">
                 <VolleyballCourt diagram={b.diagram} />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/library-covers/${template.slug}-${b.order}.jpg`}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
               </div>
               <div className="mt-3">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{t.trainingDoc.setup}</p>
