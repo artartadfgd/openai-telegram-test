@@ -1,6 +1,13 @@
 import Link from "next/link";
-import { Clock, Sparkles, Users } from "lucide-react";
+import { Clock, Users } from "lucide-react";
+import { CuratedCoverArt } from "@/components/curated-cover-art";
 import type { CuratedTemplate } from "@/lib/volleyball";
+
+function seedFromSlug(slug: string) {
+  let h = 0;
+  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) | 0;
+  return h;
+}
 
 export function CuratedCard({ template, badge }: { template: CuratedTemplate; badge: string }) {
   return (
@@ -8,15 +15,14 @@ export function CuratedCard({ template, badge }: { template: CuratedTemplate; ba
       href={`/library/${template.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/60 hover:shadow-md"
     >
-      <div
-        className="relative flex h-32 items-center justify-center overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${template.coverFrom}, ${template.coverTo})` }}
-      >
-        <Sparkles className="h-10 w-10 text-white/25 transition-transform duration-300 group-hover:scale-110" />
+      <div className="relative h-32 overflow-hidden">
+        <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-105">
+          <CuratedCoverArt from={template.coverFrom} to={template.coverTo} seed={seedFromSlug(template.slug)} />
+        </div>
         <span className="absolute left-2.5 top-2.5 rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white backdrop-blur">
           {template.category}
         </span>
-        <span className="absolute right-2.5 top-2.5 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground">
+        <span className="absolute right-2.5 top-2.5 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-900">
           {badge}
         </span>
       </div>

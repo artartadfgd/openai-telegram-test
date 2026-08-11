@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const themeScript = `
 try {
   var stored = localStorage.getItem('coachai-theme');
-  var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  var theme = stored || 'dark';
   document.documentElement.dataset.theme = theme;
 } catch (e) {}
 `;

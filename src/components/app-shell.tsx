@@ -60,7 +60,7 @@ export function AppShell({
       items: [
         { to: "/profile", label: t.nav.profile, icon: CircleUserRound },
         { to: "/settings", label: t.nav.settings, icon: Settings },
-        { to: "mailto:suportesafeoffer@gmail.com", label: t.nav.support, icon: Mail },
+        { to: "mailto:suportesafeoffer@hotmail.com", label: t.nav.support, icon: Mail },
       ],
     },
   ];

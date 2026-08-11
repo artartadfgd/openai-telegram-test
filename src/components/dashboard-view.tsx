@@ -214,7 +214,7 @@ export function DashboardView({ firstName, stats }: { firstName: string; stats: 
             <p className="mt-0.5 text-sm text-muted-foreground">{t.dashboard.supportDesc}</p>
           </div>
           <Button variant="outline" asChild className="gap-2">
-            <a href="mailto:suportesafeoffer@gmail.com">
+            <a href="mailto:suportesafeoffer@hotmail.com">
               <Mail className="h-4 w-4" />
               {t.dashboard.supportCta}
             </a>

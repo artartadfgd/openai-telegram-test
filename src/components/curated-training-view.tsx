@@ -155,18 +155,23 @@ export function CuratedTrainingView({ slug }: { slug: string }) {
               <div className="mt-3 max-w-xl">
                 <VolleyballCourt diagram={b.diagram} />
               </div>
-              <p className="mt-2 text-sm text-foreground/80">{b.description}</p>
+              <div className="mt-3">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{t.trainingDoc.setup}</p>
+                <p className="mt-1 text-sm text-foreground/80">{b.description}</p>
+              </div>
               {b.coachingPoints.length > 0 && (
-                <div className="mt-3">
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{t.trainingDoc.coachingPoints}</p>
-                  <ul className="mt-1.5 space-y-1 text-sm">
+                <div className="mt-4">
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{t.trainingDoc.howTo}</p>
+                  <ol className="mt-2 space-y-2">
                     {b.coachingPoints.map((cp, ci) => (
-                      <li key={ci} className="flex gap-2 text-foreground/80">
-                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary" />
-                        {cp}
+                      <li key={ci} className="flex items-start gap-2.5 text-sm text-foreground/80">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary">
+                          {ci + 1}
+                        </span>
+                        <span className="pt-0.5">{cp}</span>
                       </li>
                     ))}
-                  </ul>
+                  </ol>
                 </div>
               )}
               {b.tacticalPrinciple && (

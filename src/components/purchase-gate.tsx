@@ -87,8 +87,8 @@ export function PurchaseGate({ children }: { children: React.ReactNode }) {
 
             <p className="mt-4 text-center text-xs text-muted-foreground">
               {t.purchase.supportHint}{" "}
-              <a href="mailto:suportesafeoffer@gmail.com" className="font-medium text-primary hover:underline">
-                suportesafeoffer@gmail.com
+              <a href="mailto:suportesafeoffer@hotmail.com" className="font-medium text-primary hover:underline">
+                suportesafeoffer@hotmail.com
               </a>
             </p>
           </form>
