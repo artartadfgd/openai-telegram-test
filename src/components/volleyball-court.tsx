@@ -92,9 +92,13 @@ const ARROW_COLORS: Record<string, string> = {
   move: "#F8FAFC",
 };
 
+const TRAVEL_MS = 900;
+const GAP_MS = 350;
+
 export function VolleyballCourt({ diagram, animated = true }: { diagram: CourtDiagram; animated?: boolean }) {
   const reducedMotion = usePrefersReducedMotion();
-  const maskPathRefs = useRef<(SVGPathElement | null)[]>([]);
+  const pathRefs = useRef<(SVGPathElement | null)[]>([]);
+  const markerRefs = useRef<(SVGGElement | null)[]>([]);
   const lengthsRef = useRef<number[]>([]);
 
   const arrows = useMemo(
@@ -114,30 +118,32 @@ export function VolleyballCourt({ diagram, animated = true }: { diagram: CourtDi
   );
 
   useEffect(() => {
-    lengthsRef.current = maskPathRefs.current.map((el) => el?.getTotalLength() ?? 0);
-    maskPathRefs.current.forEach((el, i) => {
-      if (!el) return;
-      const len = lengthsRef.current[i];
-      el.style.strokeDasharray = `${len}`;
-      el.style.strokeDashoffset = reducedMotion || !animated ? "0" : `${len}`;
-    });
+    lengthsRef.current = pathRefs.current.map((el) => el?.getTotalLength() ?? 0);
     if (reducedMotion || !animated || arrows.length === 0) return;
 
-    const cycle = arrows.length * 500 + 900;
+    const perArrow = TRAVEL_MS + GAP_MS;
+    const cycle = arrows.length * perArrow;
     let raf = 0;
     const start = performance.now();
     const step = (ts: number) => {
       const t = (ts - start) % cycle;
       arrows.forEach((_, i) => {
-        const el = maskPathRefs.current[i];
-        if (!el) return;
+        const path = pathRefs.current[i];
+        const marker = markerRefs.current[i];
+        if (!path || !marker) return;
         const len = lengthsRef.current[i] || 1;
-        const localT = t - i * 500;
-        let progress = 0;
-        if (localT < 0) progress = 0;
-        else if (localT >= 400) progress = 1;
-        else progress = localT / 400;
-        el.style.strokeDashoffset = `${(1 - progress) * len}`;
+        const localT = t - i * perArrow;
+        if (localT < 0 || localT >= TRAVEL_MS) {
+          marker.style.opacity = "0";
+          return;
+        }
+        const progress = localT / TRAVEL_MS;
+        const point = path.getPointAtLength(progress * len);
+        const ahead = path.getPointAtLength(Math.min(len, (progress + 0.02) * len));
+        const angle = (Math.atan2(ahead.y - point.y, ahead.x - point.x) * 180) / Math.PI;
+        const fade = Math.min(1, Math.min(progress, 1 - progress) * 6);
+        marker.style.opacity = `${fade}`;
+        marker.style.transform = `translate(${point.x}px, ${point.y}px) rotate(${angle}deg)`;
       });
       raf = requestAnimationFrame(step);
     };
@@ -206,33 +212,36 @@ export function VolleyballCourt({ diagram, animated = true }: { diagram: CourtDi
         })}
 
         {arrows.map((a, i) => (
-          <g key={`a-${i}`}>
-            <mask id={`vc-reveal-${i}`} maskUnits="userSpaceOnUse" x={0} y={0} width={W} height={H}>
-              <rect x={0} y={0} width={W} height={H} fill="black" />
-              <path
-                ref={(el) => {
-                  maskPathRefs.current[i] = el;
-                }}
-                d={a.d}
-                fill="none"
-                stroke="white"
-                strokeWidth={4}
-                strokeLinecap="round"
-              />
-            </mask>
-            <path
-              d={a.d}
-              fill="none"
-              stroke={a.color}
-              strokeWidth={1.7}
-              strokeLinecap="round"
-              strokeDasharray="3.4 3"
-              markerEnd={`url(#vc-arrowhead-${a.type})`}
-              mask={`url(#vc-reveal-${i})`}
-              opacity={0.95}
-            />
-          </g>
+          <path
+            key={`a-${i}`}
+            ref={(el) => {
+              pathRefs.current[i] = el;
+            }}
+            d={a.d}
+            fill="none"
+            stroke={a.color}
+            strokeWidth={1.7}
+            strokeLinecap="round"
+            strokeDasharray="3.4 3"
+            markerEnd={`url(#vc-arrowhead-${a.type})`}
+            opacity={0.95}
+          />
         ))}
+
+        {!reducedMotion &&
+          animated &&
+          arrows.map((a, i) => (
+            <g
+              key={`m-${i}`}
+              ref={(el) => {
+                markerRefs.current[i] = el;
+              }}
+              style={{ opacity: 0 }}
+            >
+              <circle r={3.4} fill={a.color} opacity={0.3} />
+              <path d="M -3.2 -2.4 L 4 0 L -3.2 2.4 Z" fill={a.color} stroke="#0B1220" strokeWidth={0.4} strokeLinejoin="round" />
+            </g>
+          ))}
 
         {players.map((p, i) => (
           <PlayerToken key={`p-${i}`} p={p} index={i} reducedMotion={reducedMotion || !animated} />

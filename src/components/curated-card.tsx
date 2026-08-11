@@ -18,16 +18,6 @@ export function CuratedCard({ template, badge }: { template: CuratedTemplate; ba
       <div className="relative h-32 overflow-hidden">
         <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-105">
           <CuratedCoverArt from={template.coverFrom} to={template.coverTo} seed={seedFromSlug(template.slug)} />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/library-covers/${template.slug}-1.jpg`}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-            loading="lazy"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
-          />
         </div>
         <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <span className="absolute left-2.5 top-2.5 rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white backdrop-blur">

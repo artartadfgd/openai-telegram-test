@@ -72,16 +72,6 @@ export function CuratedTrainingView({ slug }: { slug: string }) {
         className="relative overflow-hidden rounded-t-2xl border-b border-border p-6"
         style={{ background: `linear-gradient(135deg, ${template.coverFrom}22, transparent)` }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`/library-covers/${template.slug}-1.jpg`}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-20 print:hidden"
-          loading="lazy"
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
-          }}
-        />
         <div className="relative">
         <Badge variant="secondary" className="mb-3 font-normal">
           {template.category} · {t.library.readyMadeBadge}
@@ -124,16 +114,6 @@ export function CuratedTrainingView({ slug }: { slug: string }) {
             >
               <div className="relative aspect-[3/2] overflow-hidden rounded-md">
                 <VolleyballCourt diagram={b.diagram} animated={false} />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/library-covers/${template.slug}-${b.order}.jpg`}
-                  alt=""
-                  className="absolute inset-0 h-full w-full object-cover"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
               </div>
               <div className="px-1 pb-0.5">
                 <div className="truncate text-[11px] font-medium">
@@ -176,16 +156,6 @@ export function CuratedTrainingView({ slug }: { slug: string }) {
               </div>
               <div className="relative mt-3 aspect-[3/2] max-w-xl overflow-hidden rounded-lg">
                 <VolleyballCourt diagram={b.diagram} />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/library-covers/${template.slug}-${b.order}.jpg`}
-                  alt=""
-                  className="absolute inset-0 h-full w-full object-cover"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
               </div>
               <div className="mt-3">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{t.trainingDoc.setup}</p>
