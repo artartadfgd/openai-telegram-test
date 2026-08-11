@@ -8,10 +8,14 @@ const OUT_DIR = path.join(process.cwd(), "public", "library-covers");
 
 function buildPrompt(t: CuratedTemplate) {
   return (
-    `Professional editorial sports photograph of a youth volleyball team training indoors on a wood-floor court. ` +
-    `The drill: ${t.subtitle.toLowerCase()} (${t.objective.toLowerCase()}). ` +
-    `Dynamic action shot, players mid-movement, athletic wear, natural gym lighting, shallow depth of field, ` +
-    `realistic photography, no text, no logos, no watermarks, 16:9 wide composition.`
+    `Clean flat-illustration diagram of an indoor volleyball court seen from a high elevated 3/4 aerial angle, ` +
+    `in the style of a premium sports-coaching mobile app. Warm wood-tone court floor, white court lines, a low net across ` +
+    `the middle. Small stylized illustrated players (not photorealistic, simple flat-shaded character style like a modern ` +
+    `training app icon) in two team colors — one team in blue jerseys, the other in orange/yellow jerseys — positioned to ` +
+    `demonstrate this drill: ${t.subtitle.toLowerCase()} (${t.objective.toLowerCase()}). A smooth curved dashed white line ` +
+    `shows the ball's movement path between players, with a small volleyball icon on the trajectory. Vibrant, polished, ` +
+    `flat-design illustration with soft shadows, similar to a tactical training-session cover image. No readable text, ` +
+    `no logos, no watermarks, no UI elements, 16:9 wide composition.`
   );
 }
 
