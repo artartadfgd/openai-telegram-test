@@ -69,9 +69,20 @@ export function CuratedTrainingView({ slug }: { slug: string }) {
   return (
     <article className="mx-auto max-w-3xl animate-fade-in rounded-2xl border border-border bg-card shadow-sm print:border-0 print:shadow-none">
       <header
-        className="rounded-t-2xl border-b border-border p-6"
+        className="relative overflow-hidden rounded-t-2xl border-b border-border p-6"
         style={{ background: `linear-gradient(135deg, ${template.coverFrom}22, transparent)` }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`/library-covers/${template.slug}.jpg`}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-20 print:hidden"
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
+        <div className="relative">
         <Badge variant="secondary" className="mb-3 font-normal">
           {template.category} · {t.library.readyMadeBadge}
         </Badge>
@@ -137,6 +148,7 @@ export function CuratedTrainingView({ slug }: { slug: string }) {
           </Button>
         </div>
         {error && <div className="mt-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
+        </div>
       </header>
 
       <section className="p-6">
