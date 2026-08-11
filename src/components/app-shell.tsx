@@ -21,7 +21,10 @@ import {
 import { Brandmark } from "@/components/brandmark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { TourProvider } from "@/lib/tour-context";
+import { TourOverlay } from "@/components/tour-overlay";
 import { useTranslation } from "@/lib/i18n/context";
+import type { TourStepKey } from "@/lib/tour-context";
 
 export function AppShell({
   children,
@@ -34,23 +37,23 @@ export function AppShell({
   const router = useRouter();
   const { t } = useTranslation();
 
-  const NAV_SECTIONS = [
+  const NAV_SECTIONS: { title: string; items: { to: string; label: string; icon: typeof LayoutDashboard; tourKey?: TourStepKey }[] }[] = [
     {
       title: t.nav.work,
       items: [
-        { to: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
-        { to: "/ai-coach", label: t.nav.aiCoach, icon: Sparkles },
-        { to: "/training-builder", label: t.nav.trainingBuilder, icon: WandSparkles },
-        { to: "/library", label: t.nav.library, icon: BookOpen },
+        { to: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard, tourKey: "dashboard" },
+        { to: "/ai-coach", label: t.nav.aiCoach, icon: Sparkles, tourKey: "aiCoach" },
+        { to: "/training-builder", label: t.nav.trainingBuilder, icon: WandSparkles, tourKey: "trainingBuilder" },
+        { to: "/library", label: t.nav.library, icon: BookOpen, tourKey: "library" },
       ],
     },
     {
       title: t.nav.planning,
       items: [
-        { to: "/teams", label: t.nav.teams, icon: Users },
-        { to: "/players", label: t.nav.players, icon: UserRound },
-        { to: "/calendar", label: t.nav.calendar, icon: CalendarRange },
-        { to: "/season", label: t.nav.season, icon: CalendarClock },
+        { to: "/teams", label: t.nav.teams, icon: Users, tourKey: "teams" },
+        { to: "/players", label: t.nav.players, icon: UserRound, tourKey: "players" },
+        { to: "/calendar", label: t.nav.calendar, icon: CalendarRange, tourKey: "calendar" },
+        { to: "/season", label: t.nav.season, icon: CalendarClock, tourKey: "season" },
         { to: "/favorites", label: t.nav.favorites, icon: Star },
         { to: "/history", label: t.nav.history, icon: History },
       ],
@@ -80,7 +83,9 @@ export function AppShell({
   }
 
   return (
+    <TourProvider>
     <div className="flex min-h-screen w-full bg-background text-foreground">
+      <TourOverlay />
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-sidebar md:flex">
         <div className="flex h-14 items-center px-4">
           <Link href="/dashboard" className="transition-opacity duration-150 hover:opacity-80">
@@ -98,6 +103,7 @@ export function AppShell({
                     <li key={item.to}>
                       <Link
                         href={item.to}
+                        data-tour={item.tourKey}
                         className={
                           "relative flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm transition-colors duration-150 " +
                           (active
@@ -185,5 +191,6 @@ export function AppShell({
         </nav>
       </div>
     </div>
+    </TourProvider>
   );
 }

@@ -5,6 +5,7 @@ import { Bell, Clock, Mail, Plus, Sparkles, Target, Trophy, Users, Zap, Swords, 
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/metric-card";
 import { QuickCreateForm } from "@/components/quick-create-form";
+import { TourBanner } from "@/components/tour-banner";
 import { useTranslation } from "@/lib/i18n/context";
 import type { getDashboardStats } from "@/lib/metrics";
 
@@ -68,6 +69,7 @@ export function DashboardView({ firstName, stats }: { firstName: string; stats: 
 
   return (
     <div className="mx-auto max-w-6xl">
+      <TourBanner />
       <header className="flex flex-col gap-4 pb-6 md:flex-row md:items-start md:justify-between animate-fade-in" style={{ animationFillMode: "both" }}>
         <div className="min-w-0">
           <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
