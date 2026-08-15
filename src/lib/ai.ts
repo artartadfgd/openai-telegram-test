@@ -30,6 +30,7 @@ const diagramSchema = {
   properties: {
     players: {
       type: "array",
+      minItems: 2,
       maxItems: 12,
       items: {
         type: "object",
@@ -46,6 +47,7 @@ const diagramSchema = {
     },
     arrows: {
       type: "array",
+      minItems: 1,
       maxItems: 10,
       items: {
         type: "object",
@@ -160,6 +162,7 @@ Regras importantes para os diagramas de quadra:
 - Sempre posicione jogadores de forma realista respeitando as posições de rotação do voleibol (1 a 6) quando fizer sentido.
 - O tipo de quadra (courtSetup) deve descrever algo como "quadra completa", "meia quadra", "zona de ataque" ou "quadra reduzida" (traduzido para o idioma de resposta) — escolha o que fizer mais sentido pro exercício.
 - Tipos de seta (enum fixo, não traduzir): "serve" (saque), "set" (levantamento), "spike" (ataque/cortada), "block" (bloqueio), "dig" (defesa/manchete), "move" (deslocamento).
+- OBRIGATÓRIO: TODO bloco precisa de um diagrama completo e explicativo — nunca deixe "players" ou "arrows" vazios ou com só a quadra em branco. Inclua pelo menos 2 jogadores posicionados de forma realista e pelo menos 1 seta (idealmente 2 ou mais quando o exercício tem mais de uma ação) mostrando exatamente o trajeto da bola ou o deslocamento que o jogador deve executar naquele exercício específico — a seta é o que explica visualmente o que a pessoa precisa fazer.
 - Cada bloco deve ter uma duração coerente que some (aproximadamente) o total do treino.
 - coachingPoints, technicalActions e tacticalPrinciple devem ser específicos e acionáveis, nunca genéricos, sempre no contexto de voleibol (recepção, levantamento, ataque, bloqueio, saque, defesa, rodízio, sistema tático).
 Seja didático, prático e direto, como um treinador experiente de voleibol escrevendo para outro treinador.

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CourtDiagram } from "@/lib/volleyball";
+import { useTranslation } from "@/lib/i18n/context";
 
 const W = 300;
 const H = 200;
@@ -96,6 +97,7 @@ const TRAVEL_MS = 900;
 const GAP_MS = 350;
 
 export function VolleyballCourt({ diagram, animated = true }: { diagram: CourtDiagram; animated?: boolean }) {
+  const { t } = useTranslation();
   const reducedMotion = usePrefersReducedMotion();
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
   const markerRefs = useRef<(SVGGElement | null)[]>([]);
@@ -155,6 +157,7 @@ export function VolleyballCourt({ diagram, animated = true }: { diagram: CourtDi
   const cones = diagram.cones ?? [];
   const balls = diagram.balls ?? [];
   const teams = useMemo(() => Array.from(new Set(players.map((p) => p.team))), [players]);
+  const isEmpty = players.length === 0 && arrows.length === 0 && cones.length === 0 && balls.length === 0;
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg border border-[#B98955] shadow-[inset_0_1px_2px_rgba(0,0,0,0.15)]">
@@ -264,6 +267,11 @@ export function VolleyballCourt({ diagram, animated = true }: { diagram: CourtDi
           );
         })}
       </svg>
+      {isEmpty && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4 text-center">
+          <p className="rounded-md bg-black/35 px-2.5 py-1 text-xs font-medium text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">{t.trainingDoc.noDiagram}</p>
+        </div>
+      )}
     </div>
   );
 }
