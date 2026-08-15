@@ -5,8 +5,16 @@ const APPROVED_STATUSES = new Set(["APPROVED", "COMPLETE"]);
 
 let cachedToken: { value: string; expiresAt: number } | null = null;
 
+function getProductIds(): string[] {
+  const raw = process.env.HOTMART_PRODUCT_IDS || process.env.HOTMART_PRODUCT_ID || "";
+  return raw
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
+}
+
 export function isHotmartConfigured() {
-  return Boolean(process.env.HOTMART_CLIENT_ID && process.env.HOTMART_CLIENT_SECRET && process.env.HOTMART_BASIC_TOKEN && process.env.HOTMART_PRODUCT_ID);
+  return Boolean(process.env.HOTMART_CLIENT_ID && process.env.HOTMART_CLIENT_SECRET && process.env.HOTMART_BASIC_TOKEN && getProductIds().length > 0);
 }
 
 function isAllowlisted(email: string): boolean {
@@ -39,20 +47,7 @@ async function getAccessToken(): Promise<string> {
   return token;
 }
 
-/**
- * Checks whether an approved (non-refunded/cancelled) Hotmart purchase of the
- * configured product exists for this email. Fails OPEN (returns true) when
- * Hotmart credentials aren't configured yet, so the app isn't accidentally
- * locked down before setup is complete. Emails in HOTMART_ALLOWLIST_EMAILS
- * always pass, regardless of purchase status.
- */
-export async function verifyPurchase(email: string): Promise<boolean> {
-  if (isAllowlisted(email)) return true;
-  if (!isHotmartConfigured()) return true;
-
-  const productId = process.env.HOTMART_PRODUCT_ID!;
-  const token = await getAccessToken();
-
+async function hasApprovedPurchase(productId: string, email: string, token: string): Promise<boolean> {
   const url = `${SALES_URL}?product_id=${encodeURIComponent(productId)}&buyer_email=${encodeURIComponent(email)}`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
@@ -61,4 +56,23 @@ export async function verifyPurchase(email: string): Promise<boolean> {
   const data = await res.json();
   const items: Array<{ purchase?: { status?: string } }> = data.items ?? [];
   return items.some((item) => item.purchase?.status && APPROVED_STATUSES.has(item.purchase.status));
+}
+
+/**
+ * Checks whether an approved (non-refunded/cancelled) Hotmart purchase of any
+ * of the configured products (HOTMART_PRODUCT_IDS, comma-separated) exists
+ * for this email. Fails OPEN (returns true) when Hotmart credentials aren't
+ * configured yet, so the app isn't accidentally locked down before setup is
+ * complete. Emails in HOTMART_ALLOWLIST_EMAILS always pass, regardless of
+ * purchase status.
+ */
+export async function verifyPurchase(email: string): Promise<boolean> {
+  if (isAllowlisted(email)) return true;
+  if (!isHotmartConfigured()) return true;
+
+  const token = await getAccessToken();
+  for (const productId of getProductIds()) {
+    if (await hasApprovedPurchase(productId, email, token)) return true;
+  }
+  return false;
 }
