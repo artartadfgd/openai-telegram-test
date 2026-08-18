@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
     if (!purchaseValid) {
       return NextResponse.json({ error: "purchase_not_found" }, { status: 403 });
     }
-  } catch {
+  } catch (err) {
+    console.error("[hotmart] login verify failed:", err instanceof Error ? err.message : err);
     return NextResponse.json({ error: "hotmart_error" }, { status: 502 });
   }
 

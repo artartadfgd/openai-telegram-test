@@ -11,7 +11,8 @@ export async function POST(req: NextRequest) {
   try {
     const verified = await verifyPurchase(parsed.data.email.toLowerCase().trim());
     return NextResponse.json({ verified });
-  } catch {
+  } catch (err) {
+    console.error("[hotmart] verify route failed:", err instanceof Error ? err.message : err);
     return NextResponse.json({ error: "hotmart_error" }, { status: 502 });
   }
 }

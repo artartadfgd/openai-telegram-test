@@ -39,7 +39,11 @@ async function getAccessToken(): Promise<string> {
     method: "POST",
     headers: { Authorization: `Basic ${basicToken}` },
   });
-  if (!res.ok) throw new Error("hotmart_auth_failed");
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.error(`[hotmart] auth failed: ${res.status} ${res.statusText} — ${body.slice(0, 500)}`);
+    throw new Error("hotmart_auth_failed");
+  }
   const data = await res.json();
   const token = data.access_token as string;
   const expiresInMs = (Number(data.expires_in) || 3600) * 1000;
@@ -52,7 +56,11 @@ async function hasApprovedPurchase(productId: string, email: string, token: stri
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("hotmart_lookup_failed");
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.error(`[hotmart] sales lookup failed for product ${productId}: ${res.status} ${res.statusText} — ${body.slice(0, 500)}`);
+    throw new Error("hotmart_lookup_failed");
+  }
   const data = await res.json();
   const items: Array<{ purchase?: { status?: string } }> = data.items ?? [];
   return items.some((item) => item.purchase?.status && APPROVED_STATUSES.has(item.purchase.status));
