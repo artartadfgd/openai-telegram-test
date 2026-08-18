@@ -23,8 +23,18 @@ export function PurchaseGate({ children }: { children: React.ReactNode }) {
     try {
       hasVerified = Boolean(sessionStorage.getItem(SESSION_KEY));
     } catch {}
-    setVerified(hasVerified);
-    setReady(true);
+    if (hasVerified) {
+      setVerified(true);
+      setReady(true);
+      return;
+    }
+    fetch("/api/hotmart/status")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.enabled) setVerified(true);
+      })
+      .catch(() => {})
+      .finally(() => setReady(true));
   }, []);
 
   async function onSubmit(e: React.FormEvent) {

@@ -14,6 +14,7 @@ function getProductIds(): string[] {
 }
 
 export function isHotmartConfigured() {
+  if (process.env.HOTMART_DISABLED === "true") return false;
   return Boolean(process.env.HOTMART_CLIENT_ID && process.env.HOTMART_CLIENT_SECRET && process.env.HOTMART_BASIC_TOKEN && getProductIds().length > 0);
 }
 
