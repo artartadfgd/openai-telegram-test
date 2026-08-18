@@ -9,7 +9,7 @@ function getProductIds(): string[] {
   const raw = process.env.HOTMART_PRODUCT_IDS || process.env.HOTMART_PRODUCT_ID || "";
   return raw
     .split(",")
-    .map((id) => id.trim())
+    .map((id) => id.replace(/[^0-9]/g, ""))
     .filter(Boolean);
 }
 
